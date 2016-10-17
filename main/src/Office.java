@@ -5,7 +5,7 @@ public class Office implements IResource{
     public boolean isHeld = false;
 
     @Override
-    public void acquire() {
+    public synchronized void acquire() {
         while(isHeld) {
             try {
                 wait();
@@ -17,7 +17,7 @@ public class Office implements IResource{
     }
 
     @Override
-    public void release() {
+    public synchronized void release() {
         isHeld = false;
         notifyAll();
     }
