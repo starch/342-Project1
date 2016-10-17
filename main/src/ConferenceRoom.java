@@ -1,10 +1,9 @@
 /**
  * Created by John King on 12-Oct-16.
  */
-public class ConferenceRoom implements IResource{
+public class ConferenceRoom{
     public boolean isHeld = false;
 
-    @Override
     public synchronized void acquire() {
         while(isHeld) {
             try {
@@ -16,7 +15,6 @@ public class ConferenceRoom implements IResource{
         isHeld = true;
     }
 
-    @Override
     public synchronized void release() {
         isHeld = false;
         notifyAll();

@@ -1,12 +1,32 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
 /**
  * Created by John King on 12-Oct-16.
  */
-public class Office implements IResource{
-    public boolean isHeld = false;
+public class Office{
+    public boolean isHeld;
+    public boolean managerPresent;
+    public Queue<TeamLead> queue;
 
-    @Override
-    public synchronized void acquire() {
-        while(isHeld) {
+    public Office(){
+        isHeld = false;
+        managerPresent = true;
+        queue = new LinkedList<>();
+    }
+
+    public void managerLeft(){
+        managerPresent = false;
+    }
+
+    public void managerReturns(){
+        managerPresent = true;
+    }
+
+    public synchronized void acquire(TeamLead t) {
+        queue.add(t);
+
+        while(isHeld || !managerPresent || queue.peek()!= t) {
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -14,9 +34,9 @@ public class Office implements IResource{
             }
         }
         isHeld = true;
+        queue.remove(t);
     }
 
-    @Override
     public synchronized void release() {
         isHeld = false;
         notifyAll();
