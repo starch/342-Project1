@@ -4,7 +4,7 @@
 
 public class Clock {
     private static Clock instance = null;
-
+    private State state = null;
     private int hour = 8;
     private int minute = 0;
 
@@ -70,21 +70,21 @@ public class Clock {
      */
     public State getState(){
 
-        if(hour == 8 && minute <= 30){
-            return State.ARRIVAL_TIME;
-        }
-        else if(hour == 4){
-            if(minute >= 30)
-                return State.DEPARTURE_TIME;
+
+        if (hour == 8 && minute <= 30) {
+            state = State.ARRIVAL_TIME;
+        } else if (hour == 4) {
+            if (minute >= 30)
+                state = State.DEPARTURE_TIME;
             else
-                return State.MANDATORY_MEETING;
+                state = State.MANDATORY_MEETING;
+        } else if (hour == 5) {
+            state = State.CLOSED;
+        } else {
+            state = State.WORK_TIME;  // default value is work time
         }
-        else if(hour == 5){
-            return State.CLOSED;
-        }
-        else {
-            return State.WORK_TIME;  // default value is work time
-        }
+
+        return state;
 
     }
 

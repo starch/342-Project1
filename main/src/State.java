@@ -10,5 +10,6 @@ public enum State {
         DEPARTURE_TIME,
         CLOSED,
         MANAGER_MEETING_AM,
-        MANAGER_MEETING_PM
+        MANAGER_MEETING_PM,
+        AWAY // manager is away from the office
 }
