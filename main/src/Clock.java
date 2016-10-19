@@ -92,7 +92,28 @@ public class Clock {
      * @return
      */
     public int[] getEndOfMeeting(int minute){
-        int[] result = {hour,(this.minute + minute)};
+
+        if(minute > 60){
+            System.err.println("MINUTE CANNOT BE GREATER THAN 60");
+            System.exit(1);
+        }
+        int nMinute = this.minute + minute;
+        int nHour = hour;
+
+
+        if(nMinute > 60){
+            if(nHour+1 > 12){
+                nHour = (nHour+1)-12;
+            }
+            else{
+                nHour += 1;
+            }
+
+            nMinute -= 60;
+        }
+        System.out.println(nHour + ":" + nMinute);
+        int[] result = {nHour,nMinute};
+
         return result;
     }
 
