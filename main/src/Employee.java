@@ -134,11 +134,11 @@ public class Employee extends Thread implements Runnable {
 		boolean didStatus = false; 
 
 		int arrivalDelay = random.nextInt(31); 
-		try {
+		//try {
 			//sleep();
-		} catch (InterruptedException e) {
+		//} catch (InterruptedException e) {
 			System.out.println("Interrupt at " + e);
-		}
+		//}
 
 		// Set what minute the employee is currently on and log the arrival event
 
@@ -150,7 +150,7 @@ public class Employee extends Thread implements Runnable {
 
 		// If the employee is a lead, go to the Lead Standup
 		if (isLead) {
-			try {
+			//try {
 				// Log what time it is and that the lead for team X is waiting
 				// outside the Manager's office
 
@@ -163,15 +163,15 @@ public class Employee extends Thread implements Runnable {
 
 				// Now each team lead waits for his members
 
-			} catch (InterruptedException | BrokenBarrierException e) {
-			}
+			//} catch (InterruptedException | BrokenBarrierException e) {
+			//}
 
 		} else {
 			// You're a developer, wait for the stand-up
-			try {
+			//try {
 
-			} catch (InterruptedException | BrokenBarrierException e) {
-			}
+			//} catch (InterruptedException | BrokenBarrierException e) {
+			//}
 			
 		}
 
@@ -181,22 +181,22 @@ public class Employee extends Thread implements Runnable {
 		}
 
 		// Once the conference room is acquired
-		try {
+		//try {
 	
-		} catch (InterruptedException e1) {
-		} catch (BrokenBarrierException e1) {
-		}
+		//} catch (InterruptedException e1) {
+		//} catch (BrokenBarrierException e1) {
+		//}
 		
 		// Adjust emplyee's minute
 		// Add the time that the meeting took
 
 		// Wait the amount of time the meeting took
-		try {
+		//try {
 			//sleep();
 			//minute += 15;
-		} catch (InterruptedException e) {
-			System.out.println("Interrupt at " + e);
-		}
+		//} catch (InterruptedException e) {
+			//System.out.println("Interrupt at " + e);
+		//}
 
 		// Free the conference room for other teams
 		if (isLead) {
@@ -235,23 +235,23 @@ public class Employee extends Thread implements Runnable {
 					departTime += extraLunchTime;
 
 					// Simulate lunch time
-					try {
-						sleep();
-					} catch (InterruptedException e) {
-						System.out
-							.println("Interrupt at "
-								+ e);
-					}
+					//try {
+					//	sleep();
+					//} catch (InterruptedException e) {
+					//	System.out
+					//		.println("Interrupt at "
+					//			+ e);
+					//}
 				}
 
 				// Increment the working minute
-				try {
+				//try {
 					//sleep();
-					minute++;
-					workingTime++;
-				} catch (InterruptedException e) {
-					System.out.println("Interrupt at " + e);
-				}
+				//	minute++;
+				//	workingTime++;
+				//} catch (InterruptedException e) {
+				//	System.out.println("Interrupt at " + e);
+				//}
 
 			}
 		}
