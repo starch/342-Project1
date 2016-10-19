@@ -61,7 +61,7 @@ public class Clock {
         return input[0] == hour && input[1] == minute;
     }
 
-    /**
+    /***
      * Takes the duration of a metting and returns the end time
      * @param minute
      * @return
