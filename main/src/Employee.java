@@ -12,13 +12,12 @@ import java.util.concurrent.CyclicBarrier;
  *
  * Created by John King on 12-Oct-16.
  */
-public class Employee extends Thread implements Runnable {
+public class Employee extends Thread {
 
+	/**
+	 *  Clock, to reference time of the system
+	 */
     private Clock clock;
-
-    public Employee(Clock clock){
-        this.clock = clock;
-    }
 
     /**
 	 * If an employee is a team lead, he will have subordinate employees
@@ -116,28 +115,28 @@ public class Employee extends Thread implements Runnable {
 	 *        a reference to the ConferenceRoom
 	 */
 	public Employee(int _teamNumber, int _employeeNumber, Manager _manager,
-		ConferenceRoom _conferenceRoom)
+		ConferenceRoom _conferenceRoom, Clock _clock)
 	{
 		teamNumber = _teamNumber;
 		employeeNumber = _employeeNumber;
 		manager = _manager;
 		conferenceRoom = _conferenceRoom;
+		clock = _clock;
 	}
 
     @Override
-	public synchronized void run()
-	{
-		long stamp; 
+	public synchronized void run() {
+		long stamp;
 		Random random = new Random();
 
 		boolean lunchTaken = false;
-		boolean didStatus = false; 
+		boolean didStatus = false;
 
-		int arrivalDelay = random.nextInt(31); 
+		int arrivalDelay = random.nextInt(31);
 		//try {
-			//sleep();
+		//sleep();
 		//} catch (InterruptedException e) {
-			System.out.println("Interrupt at " + e);
+		//System.out.println("Interrupt at " + e);
 		//}
 
 		// Set what minute the employee is currently on and log the arrival event
@@ -151,17 +150,17 @@ public class Employee extends Thread implements Runnable {
 		// If the employee is a lead, go to the Lead Standup
 		if (isLead) {
 			//try {
-				// Log what time it is and that the lead for team X is waiting
-				// outside the Manager's office
+			// Log what time it is and that the lead for team X is waiting
+			// outside the Manager's office
 
-				// Wait for all the leads to arrive
-				// Mark the current time and measure elapsed time until the meeting starts
+			// Wait for all the leads to arrive
+			// Mark the current time and measure elapsed time until the meeting starts
 
-				// Start the meeting
-				//sleep();
-				//minute += 15;
+			// Start the meeting
+			//sleep();
+			//minute += 15;
 
-				// Now each team lead waits for his members
+			// Now each team lead waits for his members
 
 			//} catch (InterruptedException | BrokenBarrierException e) {
 			//}
@@ -172,7 +171,7 @@ public class Employee extends Thread implements Runnable {
 
 			//} catch (InterruptedException | BrokenBarrierException e) {
 			//}
-			
+
 		}
 
 		// Once the whole team has arrived, attempt to acquire the conference room
@@ -182,20 +181,20 @@ public class Employee extends Thread implements Runnable {
 
 		// Once the conference room is acquired
 		//try {
-	
+
 		//} catch (InterruptedException e1) {
 		//} catch (BrokenBarrierException e1) {
 		//}
-		
+
 		// Adjust emplyee's minute
 		// Add the time that the meeting took
 
 		// Wait the amount of time the meeting took
 		//try {
-			//sleep();
-			//minute += 15;
+		//sleep();
+		//minute += 15;
 		//} catch (InterruptedException e) {
-			//System.out.println("Interrupt at " + e);
+		//System.out.println("Interrupt at " + e);
 		//}
 
 		// Free the conference room for other teams
@@ -206,55 +205,54 @@ public class Employee extends Thread implements Runnable {
 		while (true) {
 			// Status meeting
 			// If it's 4 and we haven't done the status meeting, do it
-		
+
 			// Otherwise if we've worked 8 hours or more, leave
-		
+
 
 			// If neither of those conditions are met, work
 
-				// Sometimes devs wiill have questions
-				if (random.nextInt(1000) == 1) {
+			// Sometimes devs wiill have questions
+			if (random.nextInt(1000) == 1) {
 
-					// 50% of the time a lead can answer
-					if ((!isLead)
+				// 50% of the time a lead can answer
+				if ((!isLead)
 						&& (random.nextInt(2) == 0)) {
 
 					// Otherwise go ask the Manager		
-					} else {
+				} else {
 
-					}
 				}
-
-				// Employees need to eat
-				if (!lunchTaken && (minute >= lunchTime)) {
-					lunchTaken = true;
-
-					int extraLunchTime = random.nextInt(31);
-					int timeForLunch = 30 + extraLunchTime;
-
-					departTime += extraLunchTime;
-
-					// Simulate lunch time
-					//try {
-					//	sleep();
-					//} catch (InterruptedException e) {
-					//	System.out
-					//		.println("Interrupt at "
-					//			+ e);
-					//}
-				}
-
-				// Increment the working minute
-				//try {
-					//sleep();
-				//	minute++;
-				//	workingTime++;
-				//} catch (InterruptedException e) {
-				//	System.out.println("Interrupt at " + e);
-				//}
-
 			}
-		}
+
+			// Employees need to eat
+//			if (!lunchTaken && (minute >= lunchTime)) {
+//				lunchTaken = true;
+//
+//				int extraLunchTime = random.nextInt(31);
+//				int timeForLunch = 30 + extraLunchTime;
+//
+//				departTime += extraLunchTime;
+
+				// Simulate lunch time
+				//try {
+				//	sleep();
+				//} catch (InterruptedException e) {
+				//	System.out
+				//		.println("Interrupt at "
+				//			+ e);
+				//}
+			}
+
+			// Increment the working minute
+			//try {
+			//sleep();
+			//	minute++;
+			//	workingTime++;
+			//} catch (InterruptedException e) {
+			//	System.out.println("Interrupt at " + e);
+			//}
+
+		//}
 	}
 
 	/**
