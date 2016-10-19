@@ -42,7 +42,7 @@ public class Employee extends Thread {
 	/**
 	 * A reference to the team lead
 	 */
-	private TeamLead lead;
+	private Employee lead;
 
 	/**
 	 * A reference to the manager
