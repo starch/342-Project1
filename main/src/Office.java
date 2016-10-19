@@ -21,20 +21,29 @@ public class Office{
 
     public synchronized void addMorningQueue(TeamLead t){
         morningMeetingQueue.add(t);
-        if(morningMeetingQueue.size()==3){
-            int[] currentTime = clock.getTime();
-            int[] endTime = new int[2];
-            endTime[1] = currentTime[1]+15;
-            if(endTime[1]>=60){
-                endTime[1] = endTime[1]%60;
-                endTime[0] += 1;
-            }
-            else{
-                endTime[0] = currentTime[0];
-            }
+        notifyAll();
+    }
 
-            while(clock.getTime() != endTime){
+    public synchronized boolean allArrived(){
+        return morningMeetingQueue.size()==3;
+    }
 
+    public void runMorningMeeting(){
+        int[] currentTime = clock.getTime();
+        int[] endTime = new int[2];
+        endTime[1] = currentTime[1]+15;
+        if(endTime[1]>=60){
+            endTime[1] = endTime[1]%60;
+            endTime[0] += 1;
+        }
+        else{
+            endTime[0] = currentTime[0];
+        }
+
+        boolean rightTime = false;
+        while(!rightTime){
+            if(clock.getTime() == endTime){
+                rightTime = true;
             }
         }
     }
