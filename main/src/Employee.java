@@ -88,7 +88,7 @@ public class Employee extends Thread implements Runnable {
 	/**
 	 * The object for mutually exclusive access to the conference room
 	 */
-	private ConfRoom conferenceRoom;
+	private ConferenceRoom conferenceRoom;
 
 	/**
 	 * @return the Employee's current minute
@@ -285,7 +285,6 @@ public class Employee extends Thread implements Runnable {
 		return 60 + r.nextInt(300);
 	}
 
-	@Override
 	public String id()
 	{
 		return "Developer " + Integer.toString(teamNumber) + " "
