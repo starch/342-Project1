@@ -4,7 +4,7 @@
 
 public class Clock {
     private static Clock instance = null;
-    private State state = null;
+    private State state = State.ARRIVAL_TIME;
     private int hour = 8;
     private int minute = 0;
 
@@ -50,6 +50,25 @@ public class Clock {
     public int[] getTime(){
         int[] currentTime = {hour, minute};
         return currentTime;
+    }
+
+    /**
+     * returns true if the given array is the current time in the system
+     * @param input
+     * @return
+     */
+    public  boolean isSameTime(int[] input){
+        return input[0] == hour && input[1] == minute;
+    }
+
+    /**
+     * Takes the duration of a metting and returns the end time
+     * @param minute
+     * @return
+     */
+    public int[] getEndOfMeeting(int minute){
+        int[] result = {hour,(this.minute + minute)};
+        return result;
     }
 
     /**
