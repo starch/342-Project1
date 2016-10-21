@@ -23,7 +23,8 @@ public class Manager implements Runnable{
 
         office.waitForTeamLeads(); // wait for team leads to arrive before morning meeting
 
-        office.runMorningMeeting(); // run the morning meeting
+        office.runMeeting(clock.getTime(),clock.getEndOfMeeting(15),false); // runs the morning meeting for 15 minutes
+
 
         /////////////    MORNING MEETING
 
