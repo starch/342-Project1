@@ -28,6 +28,18 @@ public class Office{
         return morningMeetingQueue.size()==3;
     }
 
+    /**
+     * Called only by the manager class
+     */
+    public void waitForTeamLeads(){
+        while(allArrived()){ // wait until all team leads arrive
+            try {
+                wait();
+            } catch (InterruptedException e) {e.printStackTrace();}
+        }
+    }
+
+
     public void runMorningMeeting(){
         int[] currentTime = clock.getTime();
         int[] endTime = new int[2];
@@ -47,6 +59,34 @@ public class Office{
             }
         }
     }
+
+    /**
+     * Called by the manager class and simulates the manager "waiting" until the given
+     * start of the meeting and retuns once the meeting is over, which is given by the
+     * "end" parameter.
+     */
+    public void runMeeting(int[] start, int[] end){
+
+
+        while (!clock.isSameTime(start)) {  // manager waits till his meeting begins
+            try {
+                wait();
+            } catch (InterruptedException e) {e.printStackTrace();}
+        }
+
+        managerLeft();  // i'ts now time for the meeting, so the manager leaves
+
+
+        while(!clock.isSameTime(end)){
+            try {
+                wait();
+            } catch (InterruptedException e) {e.printStackTrace();}
+        }
+
+        managerReturns(); // manager returns from his  meeting
+
+    }
+
 
     public void managerLeft(){
         managerPresent = false;

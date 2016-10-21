@@ -13,9 +13,9 @@ public class Timer implements Runnable{
 
     @Override
     public void run() {
-        int currHour = 8; // our day starts at 8:00am
+            int currHour = 8; // our day starts at 8:00am
 
-        for(int minute=0;minute<=lengthOfDay;minute++){
+            for(int minute=0;minute<=lengthOfDay;minute++){
             try {
                 Thread.sleep(10);
                 if(minute % 60 == 0){  //update hour every 60 minutes
@@ -26,6 +26,7 @@ public class Timer implements Runnable{
                     currHour++;
                 }
                 clock.updateMinutes(minute%60); // update minute ever 10 milliseconds
+
             } catch (InterruptedException e) {e.printStackTrace();}
         }
 

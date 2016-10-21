@@ -5,7 +5,7 @@
 public class Clock {
     private static Clock instance = null;
     private State state = State.ARRIVAL_TIME;
-    private int hour = 8;
+    private int hour = 0;
     private int minute = 0;
 
 
