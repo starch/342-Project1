@@ -54,26 +54,14 @@ public class Clock {
      * @param time
      * @return
      */
-    public int[] elapsedTime(int[] time){
+    public int elapsedTime(long time){
 
-        int nHour = hour - time[0];
-        int nMinute = minute - time[1];
+        Long diff = (System.currentTimeMillis() - time)/10L;
 
-        if(nHour < 0){
-            nHour = (hour + 12) - time[0];
-        }
-        if(nMinute < 0){
-            if(nHour-1 < 0){
-                nHour = (hour + 12) - 1;
-            }
-            else{
-                nHour -=1;
-            }
-            nMinute = 60 - time[1];
-        }
-        int[] result = {nHour,nMinute};
-        return result;
+        Integer simMinutes = Integer.valueOf(diff.intValue());
+        return simMinutes;
     }
+
     /**
      * returns true if the given array is the current time in the system
      * @param input
