@@ -14,6 +14,6 @@ public class Main {
         Office office = new Office(clock);
         ConferenceRoom conferenceRoom = new ConferenceRoom(clock);
 
-        Manager manager = new Manager(clock, office);
+        Manager manager = new Manager(clock, office, conferenceRoom);
     }
 }
