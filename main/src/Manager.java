@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Manager implements Runnable{
 
     private Clock clock;
-    private Office office;
+    public Office office;
     private ConferenceRoom conferenceRoom;
     private boolean isAnswerQuestion = false;
 

@@ -265,11 +265,35 @@ public class Employee extends Thread {
 	}
 
 	/**
+	 * @return the list of this employee's subordinates (if any)
+	 */
+	public List<Employee> getSubordinates()
+	{
+		return subordinateList;
+	}
+
+	/**
+	 * @param e
+	 * the employee to assign to this lead
+	 */
+	public synchronized void addSubordinate(Employee e)
+	{
+		subordinateList.add(e);
+	}
+
+	/**
 	 * @return The team number
 	 */
 	public int getTeamNumber()
 	{
 		return teamNumber;
+	}
+
+	/**
+	 * Sets the reference to the team members lead
+	 */
+	public void setLead(Employee e) {
+		this.lead = e;
 	}
 
 	/**
