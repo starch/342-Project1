@@ -19,9 +19,10 @@ public class Office{
         clock = c;
     }
 
-    public synchronized void addMorningQueue(Employee t){
+    public synchronized int addMorningQueue(Employee t){
         morningMeetingQueue.add(t);
         notifyAll();
+        return morningMeetingQueue.size();
     }
 
     public synchronized boolean allArrived(){
