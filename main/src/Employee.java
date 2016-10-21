@@ -114,7 +114,7 @@ public class Employee extends Thread {
 	 * @param _conferenceRoom
 	 *        a reference to the ConferenceRoom
 	 */
-	public Employee(int _teamNumber, int _employeeNumber, Manager _manager,
+	public Employee(int _teamNumber, int _employeeNumber, boolean lead, Manager _manager,
 		ConferenceRoom _conferenceRoom, Clock _clock)
 	{
 		teamNumber = _teamNumber;
@@ -122,6 +122,12 @@ public class Employee extends Thread {
 		manager = _manager;
 		conferenceRoom = _conferenceRoom;
 		clock = _clock;
+
+		if (lead) {
+			isLead = true;
+		} else {
+			isLead = false;
+		}
 	}
 
     @Override
@@ -133,13 +139,16 @@ public class Employee extends Thread {
 		boolean didStatus = false;
 
 		int arrivalDelay = random.nextInt(31);
-		//try {
-		//sleep();
-		//} catch (InterruptedException e) {
-		//System.out.println("Interrupt at " + e);
-		//}
+		try {
+			sleep(arrivalDelay*8);
+		} catch (InterruptedException e) {
+			System.out.println("Interrupt at " + e);
+		}
 
 		// Set what minute the employee is currently on and log the arrival event
+		minute+=arrivalDelay;
+		String employeeArrived = String.format("Employee %d%d has arrived at work.", getTeamNumber(), getEmployeeNumber());
+		System.out.println(employeeArrived);
 
 		// Determine when the employee will take for lunch the day
 		int lunchTime;
