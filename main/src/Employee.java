@@ -132,7 +132,7 @@ public class Employee extends Thread {
 
     @Override
 	public synchronized void run() {
-		long stamp;
+		int timeStamp;
 		Random random = new Random();
 
 		boolean lunchTaken = false;
@@ -145,47 +145,65 @@ public class Employee extends Thread {
 			System.out.println("Interrupt at " + e);
 		}
 
+
+		int arrivalTime = 480 + arrivalDelay;
+
+
 		// Set what minute the employee is currently on and log the arrival event
-		minute+=arrivalDelay;
+		minute = arrivalTime;
 		String employeeArrived = String.format("Employee %d%d has arrived at work.", getTeamNumber(), getEmployeeNumber());
 		System.out.println(employeeArrived);
 
 		// Determine when the employee will take for lunch the day
-		int lunchTime;
+		int lunchTime = minute + decideLunchTime();
 
 		// Based on the amount of time taken for lunch, determine when they should leave
-		long departTime;
+		long departTime = arrivalTime + 480;
 
 		// If the employee is a lead, go to the Lead Standup
 		if (isLead) {
-			//try {
-			// Log what time it is and that the lead for team X is waiting
-			// outside the Manager's office
+			try {
+				// Log what time it is and that the lead for team X is waiting
+				// outside the Manager's office
+				timeStamp = clock.getTime();
+				String leadArrived = String.format("Lead %d has arrived at the PM's office.", getTeamNumber());
+				System.out.println(leadArrived);
 
-			// Wait for all the leads to arrive
-			// Mark the current time and measure elapsed time until the meeting starts
+				// Wait for all the leads to arrive
+				// Mark the current time and measure elapsed time until the meeting starts
+				if (manager.office.addMorningQueue(this) != 3) {
+					manager.office.waitForTeamLeads();
+				}
 
-			// Start the meeting
-			//sleep();
-			//minute += 15;
+				int waitTime = clock.elapsedTime();
+				minute += waitTime;
+				manager.office.runMorningMeeting();
 
-			// Now each team lead waits for his members
+				// Start the meeting
+				sleep(10*15);
+				minute += 15;
 
-			//} catch (InterruptedException | BrokenBarrierException e) {
-			//}
+				// TODO: Implement wait for team members to arrive for morning standup
+
+			} catch (InterruptedException | BrokenBarrierException e) {
+			}
 
 		} else {
 			// You're a developer, wait for the stand-up
-			//try {
-
-			//} catch (InterruptedException | BrokenBarrierException e) {
-			//}
+			timeStamp = clock.getTime();
+//			try {
+//				// Employee waits for other employees
+//			} catch (InterruptedException | BrokenBarrierException e) {
+//			}
+			minute += clock.elapsedTime(timeStamp);
 
 		}
 
 		// Once the whole team has arrived, attempt to acquire the conference room
+		timeStamp = clock.getTime();
 		if (isLead) {
 			// Aquire conference room
+
 		}
 
 		// Once the conference room is acquired
@@ -196,15 +214,18 @@ public class Employee extends Thread {
 		//}
 
 		// Adjust emplyee's minute
-		// Add the time that the meeting took
+		minute += clock.elapsedTime(timeStamp);
 
+		// Add the time that the meeting took
 		// Wait the amount of time the meeting took
-		//try {
-		//sleep();
-		//minute += 15;
-		//} catch (InterruptedException e) {
-		//System.out.println("Interrupt at " + e);
-		//}
+		try {
+			String teamStandup = String.format("Employee %d%d contributes to the morning standup meeting.", getTeamNumber(), getEmployeeNumber());
+			sleep(15*10);
+			minute += 15;
+		} catch (InterruptedException e) {
+			System.out.println("Interrupt at " + e);
+		}
+
 
 		// Free the conference room for other teams
 		if (isLead) {
