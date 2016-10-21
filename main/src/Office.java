@@ -7,8 +7,8 @@ import java.util.Queue;
 public class Office{
     public boolean isHeld;
     public boolean managerPresent;
-    public Queue<TeamLead> queue;
-    public Queue<TeamLead> morningMeetingQueue;
+    public Queue<Employee> queue;
+    public Queue<Employee> morningMeetingQueue;
     Clock clock;
 
     public Office(Clock c){
@@ -19,7 +19,7 @@ public class Office{
         clock = c;
     }
 
-    public synchronized void addMorningQueue(TeamLead t){
+    public synchronized void addMorningQueue(Employee t){
         morningMeetingQueue.add(t);
         notifyAll();
     }
@@ -56,7 +56,7 @@ public class Office{
         managerPresent = true;
     }
 
-    public synchronized void acquire(TeamLead t) {
+    public synchronized void acquire(Employee t) {
         queue.add(t);
 
         while(isHeld || !managerPresent || queue.peek()!= t) {
