@@ -7,11 +7,13 @@ public class Manager implements Runnable{
 
     private Clock clock;
     private Office office;
+    private ConferenceRoom conferenceRoom;
     private boolean isAnswerQuestion = false;
 
-    public Manager( Clock clock, Office office){
+    public Manager( Clock clock, Office office, ConferenceRoom c){
         this.clock = clock;
         this.office = office;
+        conferenceRoom = c;
     }
 
 
