@@ -40,12 +40,4 @@ public class Manager implements Runnable{
         office.runMeeting(startPM,endPM);
     }
 
-    public void askQuestion(){
-       // int[] endOfQuestion = clock.getEndOfMeeting(10);
-//        while(!clock.isSameTime(endOfQuestion)){
-//            try {
-//                wait();
-//            } catch (InterruptedException e) {e.printStackTrace();}
-//        }
-    }
 }

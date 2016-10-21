@@ -9,9 +9,6 @@ public class Clock {
     private int minute = 0;
 
 
-    // this Enum represents all the states the system can be in
-
-
     /**
      * This private method exists, just so that a developer cannot
      * create a clock object the traditional way with "new Clock();"
