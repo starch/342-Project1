@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 /**
  * Created by John King on 12-Oct-16.
  */
@@ -15,12 +17,23 @@ public class Main {
         Manager manager = new Manager(clock, office, conferenceRoom);
 
         for(int x=1; x<=3; x++){
-            for(int y=1; y<=4; y++){
+            ArrayList<Employee> employees = new ArrayList<>();
+            for(int y=4; y>=1; y--){
                 if(y==1){
-                    new Employee(x, y, true, manager, conferenceRoom, clock).start();
+                    Employee tempLead = new Employee(x, y, true, manager, conferenceRoom, clock);
+                    tempLead.addSubordinate(employees.get(1));
+                    tempLead.addSubordinate(employees.get(0));
+                    tempLead.addSubordinate(employees.get(2));
+                    employees.get(0).setLead(tempLead);
+                    employees.get(1).setLead(tempLead);
+                    employees.get(2).setLead(tempLead);
+                    employees.get(0).start();
+                    employees.get(1).start();
+                    employees.get(2).start();
+                    tempLead.start();
                 }
                 else{
-                    new Employee(x, y, false, manager, conferenceRoom, clock).start();
+                    employees.add(new Employee(x, y, false, manager, conferenceRoom, clock));
                 }
             }
         }
