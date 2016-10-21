@@ -64,9 +64,9 @@ public class Office{
      * Called by the manager class and simulates the manager "waiting" until the given
      * start of the meeting and retuns once the meeting is over, which is given by the
      * "end" parameter.
-     * aslkdfal;sdkf;lasdj
+     *
      */
-    public void runMeeting(int[] start, int[] end){
+    public void runMeeting(int[] start, int[] end, boolean isGone){
 
 
         while (!clock.isSameTime(start)) {  // manager waits till his meeting begins
@@ -75,7 +75,9 @@ public class Office{
             } catch (InterruptedException e) {e.printStackTrace();}
         }
 
-        managerLeft();  // i'ts now time for the meeting, so the manager leaves
+        if(isGone) {
+            managerLeft();  // i'ts now time for the meeting, so the manager leaves
+        }
 
 
         while(!clock.isSameTime(end)){
@@ -87,6 +89,16 @@ public class Office{
         managerReturns(); // manager returns from his  meeting
 
     }
+
+    public void leaveOffice(){
+        while(clock.getState() != State.CLOSED){
+            try {
+                wait();
+            } catch (InterruptedException e) {e.printStackTrace();}
+        }
+    }
+
+
 
 
     public void managerLeft(){
