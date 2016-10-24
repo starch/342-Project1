@@ -70,21 +70,6 @@ public class Employee extends Thread {
 	private int waitingTime = 0;
 
 	/**
-	 * Barrier for synchronization with the initial stand-up
-	 */
-	private CyclicBarrier standupBarrier;
-
-	/**
-	 * Barrier for synchronization with the end of the day, status meeting
-	 */
-	private CyclicBarrier statusBarrier;
-
-	/**
-	 * Barrier for synchronization with the team lead - developer meetings
-	 */
-	private CyclicBarrier leadBarrier;
-
-	/**
 	 * The object for mutually exclusive access to the conference room
 	 */
 	private ConferenceRoom conferenceRoom;
@@ -145,7 +130,7 @@ public class Employee extends Thread {
 			System.out.println("Interrupt at " + e);
 		}
 
-
+		// TODO: Make sure the offset is correct
 		int arrivalTime = 480 + arrivalDelay;
 
 
@@ -155,9 +140,10 @@ public class Employee extends Thread {
 		System.out.println(employeeArrived);
 
 		// Determine when the employee will take for lunch the day
-		int lunchTime = minute + decideLunchTime();
+		int whenToEat = minute + decideLunchTime();
 
 		// Based on the amount of time taken for lunch, determine when they should leave
+		// TODO: Make sure the offset is correct
 		long departTime = arrivalTime + 480;
 
 		// If the employee is a lead, go to the Lead Standup
@@ -165,17 +151,17 @@ public class Employee extends Thread {
 			try {
 				// Log what time it is and that the lead for team X is waiting
 				// outside the Manager's office
-				timeStamp = clock.getTime();
+				timeStamp = clock.getTimeInMinutes();
 				String leadArrived = String.format("Lead %d has arrived at the PM's office.", getTeamNumber());
 				System.out.println(leadArrived);
 
-				// Wait for all the leads to arrive
+				// TODO: Wait for all the leads to arrive
 				// Mark the current time and measure elapsed time until the meeting starts
 				if (manager.office.addMorningQueue(this) != 3) {
 					manager.office.waitForTeamLeads();
 				}
 
-				int waitTime = clock.elapsedTime();
+				int waitTime = clock.elapsedTime(timeStamp);
 				minute += waitTime;
 				manager.office.runMorningMeeting();
 
@@ -185,32 +171,32 @@ public class Employee extends Thread {
 
 				// TODO: Implement wait for team members to arrive for morning standup
 
-			} catch (InterruptedException | BrokenBarrierException e) {
+			} catch (InterruptedException e) {
 			}
 
 		} else {
 			// You're a developer, wait for the stand-up
-			timeStamp = clock.getTime();
-//			try {
-//				// Employee waits for other employees
-//			} catch (InterruptedException | BrokenBarrierException e) {
-//			}
+			timeStamp = clock.getTimeInMinutes();
+			// TODO: Implement devs waiting for other devs
+			//try {
+				// Employee waits for other employees
+			//} catch (InterruptedException e) {
+			//}
 			minute += clock.elapsedTime(timeStamp);
 
 		}
 
 		// Once the whole team has arrived, attempt to acquire the conference room
-		timeStamp = clock.getTime();
+		timeStamp = clock.getTimeInMinutes();
 		if (isLead) {
-			// Aquire conference room
+			// TODO: Aquire conference room
 
 		}
 
-		// Once the conference room is acquired
+		// TODO: Once the conference room is acquired, have the meeting
 		//try {
 
 		//} catch (InterruptedException e1) {
-		//} catch (BrokenBarrierException e1) {
 		//}
 
 		// Adjust emplyee's minute
@@ -232,16 +218,18 @@ public class Employee extends Thread {
 			// Leave conference room
 		}
 
-		while (true) {
+		while (clock.getTimeInMinutes() <= departTime) {
 			// Status meeting
 			// If it's 4 and we haven't done the status meeting, do it
+			// TODO: Finish what you're doing and queue for status meeting
+
+			// TODO: Complete status meeting
 
 			// Otherwise if we've worked 8 hours or more, leave
+			// TODO: Implement leave logic
 
-
-			// If neither of those conditions are met, work
-
-			// Sometimes devs wiill have questions
+			// Otherwise we're working
+			// Sometimes a dev will ask a question
 			if (random.nextInt(1000) == 1) {
 
 				// 50% of the time a lead can answer
@@ -250,39 +238,32 @@ public class Employee extends Thread {
 
 					// Otherwise go ask the Manager		
 				} else {
-
+					// TODO: Queue question for manager
 				}
 			}
 
-			// Employees need to eat
-//			if (!lunchTaken && (minute >= lunchTime)) {
-//				lunchTaken = true;
-//
-//				int extraLunchTime = random.nextInt(31);
-//				int timeForLunch = 30 + extraLunchTime;
-//
-//				departTime += extraLunchTime;
+			// Devs need to eat
+			if (!lunchTaken && (minute >= whenToEat)) {
+				lunchTaken = true;
 
-				// Simulate lunch time
-				//try {
-				//	sleep();
-				//} catch (InterruptedException e) {
-				//	System.out
-				//		.println("Interrupt at "
-				//			+ e);
-				//}
+				// Decide how long to take lunch for
+				int extraLunchTime = random.nextInt(31);
+				int lunchTime = 30 + extraLunchTime;
+
+				departTime += extraLunchTime;
+
+				//Simulate lunch time
+				try {
+					sleep(lunchTime*10);
+				} catch (InterruptedException e) {
+					System.out.println("Interrupt at " + e);
+				}
 			}
 
-			// Increment the working minute
-			//try {
-			//sleep();
-			//	minute++;
-			//	workingTime++;
-			//} catch (InterruptedException e) {
-			//	System.out.println("Interrupt at " + e);
-			//}
-
-		//}
+			// Increment the working minute and minute
+			minute++;
+			workingTime++;
+		}
 	}
 
 	/**

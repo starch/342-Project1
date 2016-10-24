@@ -49,30 +49,20 @@ public class Clock {
         return currentTime;
     }
 
+    public int getTimeInMinutes() {
+        int minutes = (hour * 60) + minute;
+        return minutes;
+    }
+
     /**
-     * calcuates the total elapsed time from the current time - input time
-     * @param time
-     * @return
+     * Calcuates the total elapsed time in minutes from the current time (minutes) - input time (minutes)
+     * @param startTime
+     * @return elaspsedTime in minutes
      */
-    public int[] elapsedTime(int[] time){
+    public int elapsedTime(int startTime){
+        int elapsedTime = getTimeInMinutes() - startTime;
 
-        int nHour = hour - time[0];
-        int nMinute = minute - time[1];
-
-        if(nHour < 0){
-            nHour = (hour + 12) - time[0];
-        }
-        if(nMinute < 0){
-            if(nHour-1 < 0){
-                nHour = (hour + 12) - 1;
-            }
-            else{
-                nHour -=1;
-            }
-            nMinute = 60 - time[1];
-        }
-        int[] result = {nHour,nMinute};
-        return result;
+        return elapsedTime;
 
     }
 
