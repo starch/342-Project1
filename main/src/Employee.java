@@ -117,6 +117,7 @@ public class Employee extends Thread {
 
     @Override
 	public synchronized void run() {
+        clock.waitForOpening();
 		int timeStamp;
 		Random random = new Random();
 
@@ -136,7 +137,7 @@ public class Employee extends Thread {
 
 		// Set what minute the employee is currently on and log the arrival event
 		minute = arrivalTime;
-		String employeeArrived = String.format("Employee %d%d has arrived at work.", getTeamNumber(), getEmployeeNumber());
+		String employeeArrived = String.format("Employee %d:%d has arrived at work at %d:%d.", getTeamNumber(), getEmployeeNumber(), clock.getTime()[0], clock.getTime()[1]);
 		System.out.println(employeeArrived);
 
 		// Determine when the employee will take for lunch the day
@@ -148,31 +149,32 @@ public class Employee extends Thread {
 
 		// If the employee is a lead, go to the Lead Standup
 		if (isLead) {
-			try {
+			//try {
 				// Log what time it is and that the lead for team X is waiting
 				// outside the Manager's office
 				timeStamp = clock.getTimeInMinutes();
-				String leadArrived = String.format("Lead %d has arrived at the PM's office.", getTeamNumber());
-				System.out.println(leadArrived);
+				String leadArrived = String.format("Lead %d has arrived at the PM's office at %d:%d.", getTeamNumber(),clock.getTime()[0], clock.getTime()[1]);
+				manager.office.addMorningQueue(this); // adds themselves to the queue
+			System.out.println(leadArrived);
 
-				// TODO: Wait for all the leads to arrive
-				// Mark the current time and measure elapsed time until the meeting starts
-				if (manager.office.addMorningQueue(this) != 3) {
-					manager.office.waitForTeamLeads();
-				}
-
-				int waitTime = clock.elapsedTime(timeStamp);
-				minute += waitTime;
-				manager.office.runMorningMeeting();
-
-				// Start the meeting
-				sleep(10*15);
-				minute += 15;
+//				// TODO: Wait for all the leads to arrive
+//				// Mark the current time and measure elapsed time until the meeting starts
+//				if (manager.office.addMorningQueue(this) != 3) {
+//					manager.office.waitForTeamLeads(); //TODO: employee class should not be calling this method
+//				}
+//
+//				int waitTime = clock.elapsedTime(timeStamp);
+//				minute += waitTime;
+//				manager.office.runMorningMeeting(); //TODO: employee class should not be calling this method
+//
+//				// Start the meeting
+//				sleep(10*15);
+//				minute += 15;
 
 				// TODO: Implement wait for team members to arrive for morning standup
 
-			} catch (InterruptedException e) {
-			}
+//			} catch (InterruptedException e) {
+//			}
 
 		} else {
 			// You're a developer, wait for the stand-up

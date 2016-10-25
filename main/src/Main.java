@@ -16,6 +16,7 @@ public class Main {
 
         Manager manager = new Manager(clock, office, conferenceRoom);
 
+
         for(int x=1; x<=3; x++){
             ArrayList<Employee> employees = new ArrayList<>();
             for(int y=4; y>=1; y--){
@@ -39,5 +40,6 @@ public class Main {
         }
 
         clock.startClock();
+        new Thread(manager).start();
     }
 }

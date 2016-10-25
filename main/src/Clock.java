@@ -1,3 +1,5 @@
+import javax.swing.plaf.SliderUI;
+
 /**
  * Created by John King on 12-Oct-16.
  */
@@ -142,7 +144,18 @@ public class Clock {
 
     }
 
-
+    /**
+     * forces all threads to wait till 8:00 to do anything
+     */
+    public void waitForOpening(){
+        while(this.getTime()[0] !=8){   // makes sure the manager enters at 8:00
+            try {
+                Thread.sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
 

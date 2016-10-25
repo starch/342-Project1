@@ -36,10 +36,10 @@ public class Office{
 
     /**
      * Called only by the manager class
-     * This method waits untill all team leads have arrived in the building
+     * This method waits until all team leads have arrived in the building
      * before starting the morning meeting.
      */
-    public void waitForTeamLeads(){
+    public synchronized void waitForTeamLeads(){
         while(allArrived()){ // wait until all team leads arrive
             try {
                 wait();
@@ -80,14 +80,15 @@ public class Office{
      * The boolean flag 'isGone' just detrmines whether or not the Manager is available
      * during the meeting or not
      */
-    public void runMeeting(int[] start, int[] end, boolean isGone){
-
+    public synchronized void runMeeting(int[] start, int[] end, boolean isGone, String message){
 
         while (!clock.isSameTime(start)) {  // manager waits till his meeting begins
             try {
-                wait();
+                Thread.sleep(5);
             } catch (InterruptedException e) {e.printStackTrace();}
         }
+
+        System.out.println(message + clock.getTime()[0] + ":" + clock.getTime()[1]);
 
         if(isGone) {
             managerLeft();  // i'ts now time for the meeting, so the manager leaves
@@ -96,7 +97,7 @@ public class Office{
 
         while(!clock.isSameTime(end)){
             try {
-                wait();
+                Thread.sleep(5);
             } catch (InterruptedException e) {e.printStackTrace();}
         }
 
@@ -109,10 +110,10 @@ public class Office{
      * at the end of the day. This method just waits until it's closing time
      * and then the Manager thread terminates
      */
-    public void leaveOffice(){
+    public synchronized void leaveOffice(){
         while(clock.getState() != State.CLOSED){
             try {
-                wait();
+                Thread.sleep(10);
             } catch (InterruptedException e) {e.printStackTrace();}
         }
     }
@@ -127,7 +128,6 @@ public class Office{
     public void managerReturns(){
         managerPresent = true;
     }
-
 
     /**
      * This method is called by an Employee when they wish to ask the manager a
