@@ -29,7 +29,7 @@
 * Simulated time should be 10ms to 1 min so 4.8 sec for an 8 hour period.
 
 #Responsibility
-You are to design and implement a concurrent program to simulate one day's activities at the firm. All significant events should be logged with the simulated time at which they occur, e.g., 12:02 Manager goes to lunch. Identify individual developers, where significant, by the notation Deverloper NM, where N is the team number (1-3) and M is the employee's number on the team (1-4, where 1 is the team lead). Teams should be identified as Team N, where N is the team number as specified previously.
+You are to design and implement a concurrent program to simulate one day's activities at the firm. All significant events should be logged with the simulated time at which they occur, e.g., 12:02 Manager goes to lunch. Identify individual developers, where significant, by the notation Developer NM, where N is the team number (1-3) and M is the employee's number on the team (1-4, where 1 is the team lead). Teams should be identified as Team N, where N is the team number as specified previously.
 
 Obviously, multiple runs should result in different mixes of meetings, questions, etc.
 

@@ -15,7 +15,7 @@ public class Main {
         ConferenceRoom conferenceRoom = new ConferenceRoom(clock);
 
         Manager manager = new Manager(clock, office, conferenceRoom);
-
+        office.setManager(manager);
 
         for(int x=1; x<=3; x++){
             ArrayList<Employee> employees = new ArrayList<>();

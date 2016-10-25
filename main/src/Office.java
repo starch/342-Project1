@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -8,15 +9,19 @@ public class Office{
     public boolean isOfficeFree;
     public boolean managerPresent;
     public Queue<Employee> queue;
-    public Queue<Employee> morningMeetingQueue;
+    public ArrayList<Employee> morningMeetingQueue;
+    public Manager manager;
     Clock clock;
 
     public Office(Clock c){
         isOfficeFree = false;
         managerPresent = true;
         queue = new LinkedList<>();
-        morningMeetingQueue = new LinkedList<>();
+        morningMeetingQueue = new ArrayList<>();
         clock = c;
+    }
+    public void setManager(Manager m){
+        manager = m;
     }
 
     public synchronized int addMorningQueue(Employee t){
