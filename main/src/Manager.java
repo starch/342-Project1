@@ -115,7 +115,9 @@ public class Manager extends Thread {
         try {
             b.await();
         } catch (InterruptedException e) {
+            System.out.println("Exception: " + e);
         } catch (BrokenBarrierException e) {
+            System.out.println("Exception: " + e);
         }
 
         return (int) ((System.currentTimeMillis()-timeStamp)/10L);
@@ -189,6 +191,7 @@ public class Manager extends Thread {
         try {
             sleep(15*10);
         } catch(InterruptedException e) {
+            System.out.println("Exception: " + e);
         }
         minute += 15;
         meetingTime += 15;
@@ -207,6 +210,7 @@ public class Manager extends Thread {
         try {
             sleep((END_MORN_EXEC - minute) * 10);
         } catch(InterruptedException e) {
+            System.out.println("Exception: " + e);
         }
         meetingTime += END_MORN_EXEC - minute;
         minute += END_MORN_EXEC - minute;
@@ -221,6 +225,7 @@ public class Manager extends Thread {
         try {
             sleep(60*10);
         } catch(InterruptedException e) {
+            System.out.println("Exception: " + e);
         }
         minute += 60;
         lunchTime += clock.elapsedTime(lunchTimeStamp);
@@ -234,6 +239,7 @@ public class Manager extends Thread {
         try {
             sleep((END_AFTER_EXEC - minute) * 10);
         } catch(InterruptedException e) {
+            System.out.println("Exception: " + e);
         }
         meetingTime += END_AFTER_EXEC - minute;
         minute += END_AFTER_EXEC - minute;
@@ -248,20 +254,24 @@ public class Manager extends Thread {
         try {
             sleep((START_STATUS - minute) * 10);
         } catch(InterruptedException e) {
+            System.out.println("Exception: " + e);
         }
         meetingTime += START_STATUS - minute;
         minute += START_STATUS - minute;
 
         // Wait for everyone to attend the status meeting
+        System.out.println(minute);
         minute += await(statusBarrier);
         statusBarrier.reset();
 
         // Conduct the status meeting
         String statusStart = String.format("%d: The Manager starts the status meeting.", minute);
         System.out.println(statusStart);
+        System.out.println(minute);
         try {
             sleep((END_STATUS - minute) * 10);
         } catch(InterruptedException e) {
+            System.out.println("Exception: " + e);
         }
         meetingTime += END_STATUS - minute;
         minute += END_STATUS - minute;
@@ -304,6 +314,7 @@ public class Manager extends Thread {
             try {
                 wait();
             } catch (InterruptedException e) {
+                System.out.println("Exception: " + e);
             }
         }
     }

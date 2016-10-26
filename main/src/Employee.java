@@ -206,6 +206,7 @@ public class Employee extends Thread {
 				meetingTime += clock.elapsedTime(timeStamp);
 
 			} catch (InterruptedException | BrokenBarrierException e) {
+				System.out.println("Exception: " + e);
 			}
 
 		} else {
@@ -218,6 +219,7 @@ public class Employee extends Thread {
 				leadBarrier.await();
 
 			} catch (InterruptedException | BrokenBarrierException e) {
+				System.out.println("Exception: " + e);
 			}
 
 			minute += clock.elapsedTime(timeStamp);
@@ -240,6 +242,7 @@ public class Employee extends Thread {
 		try {
 			leadBarrier.await();
 		} catch (InterruptedException | BrokenBarrierException e) {
+			System.out.println("Exception: " + e);
 		}
 
 		// Adjust employee's minute
@@ -351,6 +354,7 @@ public class Employee extends Thread {
 					minute++;
 					workingTime++;
 				} catch(InterruptedException e) {
+					System.out.println("Exception: " + e);
 				}
 			}
 		}

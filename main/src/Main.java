@@ -43,11 +43,11 @@ public class Main {
             try {
                 t.join();
             } catch (InterruptedException e) {
+                System.out.println("Exception: " + e);
             }
         }
 
-        // Once all threads have finished, print out each thread's
-        // statistics report
+        // Print out each thread's stats
         System.out.println();
         System.out.println(manager.getStats());
 
