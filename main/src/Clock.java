@@ -4,9 +4,6 @@
 
 public class Clock {
     private static Clock instance = null;
-    private State state = State.ARRIVAL_TIME;
-    private int hour = 0;
-    private int minute = 0;
 
 
     /**
@@ -31,107 +28,21 @@ public class Clock {
         return instance;
     }
 
-
     /**
-     * When the Clock object is started, the current time in milliseconds
-     * is logged and used later to calculate the current time in the simulation
+     * @return the current time in ms
      */
-    public void startClock(){
-        new Thread( new Timer(this) ).start(); // creates and runs a Timer object
-    }
-
-    /**
-     * returns a list in the format of [hour,minute].
-     * @return
-     */
-    public int[] getTime(){
-        int[] currentTime = {hour, minute};
-        return currentTime;
-    }
-
-    public int getTimeInMinutes() {
-        int minutes = (hour * 60) + minute;
-        return minutes;
-    }
-
-    /**
-     * Calcuates the total elapsed time in minutes from the current time (minutes) - input time (minutes)
-     * @param startTime
-     * @return elaspsedTime in minutes
-     */
-    public int elapsedTime(int startTime){
-        int elapsedTime = getTimeInMinutes() - startTime;
-
-        return elapsedTime;
-
-    }
-
     public static long getTimeStamp() {
         return System.currentTimeMillis();
     }
 
+    /**
+     * Calcuates the total elapsed time in minutes from the current time (ms) - input time (ms)
+     * @param startTime
+     * @return elaspsedTime in minutes
+     */
     public static int elapsedTime(long startTime) {
         return (int) ((System.currentTimeMillis() - startTime)/10L);
     }
-
-    /**
-     * returns true if the given array is the current time in the system
-     * @param input
-     * @return
-     */
-    public  boolean isSameTime(int[] input){
-        return input[0] == hour && input[1] == minute;
-    }
-
-    /***
-     * Takes the duration of a metting and returns the end time
-     * @param minute
-     * @return
-     */
-    public int getEndOfMeeting(int minute){
-
-        int result = this.getTimeInMinutes() + minute;
-
-        return result;
-    }
-
-    /**
-     * These two update methods are only used by the Timer class, which updates
-     * our "hour" and "minute" variables in the Clock class
-     * @param minutes
-     */
-    public void updateMinutes(int minutes){
-        this.minute = minutes;
-    }
-    public void updateHour(int hour){
-        this.hour = hour;
-    }
-
-    /**
-     * This method returns one of the basic states our system can be in.
-     * @return
-     */
-    public State getState(){
-
-
-        if (hour == 8 && minute <= 30) {
-            state = State.ARRIVAL_TIME;
-        } else if (hour == 4) {
-            if (minute >= 30)
-                state = State.DEPARTURE_TIME;
-            else
-                state = State.MANDATORY_MEETING;
-        } else if (hour == 5) {
-            state = State.CLOSED;
-        } else {
-            state = State.WORK_TIME;  // default value is work time
-        }
-
-        return state;
-
-    }
-
-
 
 }
 

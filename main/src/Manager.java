@@ -22,11 +22,6 @@ public class Manager extends Thread {
     private int minute;
 
     /**
-     * A reference to the conference room
-     */
-    private ConferenceRoom conferenceRoom;
-
-    /**
      * Barrier for morning stand-up
      */
     private CyclicBarrier morningBarrier;
@@ -79,9 +74,8 @@ public class Manager extends Thread {
 
     private static final int END = 1020;
 
-    public Manager( Clock clock, ConferenceRoom c){
+    public Manager( Clock clock){
         this.clock = clock;
-        conferenceRoom = c;
         blockQueue = new LinkedBlockingQueue<Employee>();
     }
 
@@ -90,7 +84,7 @@ public class Manager extends Thread {
      *
      * @param leads
      */
-    public void injLeads(List<Employee> leads)
+    public void insertLeads(List<Employee> leads)
     {
         morningBarrier = new CyclicBarrier(1 + leads.size());
 
@@ -241,7 +235,6 @@ public class Manager extends Thread {
             sleep((END_AFTER_EXEC - minute) * 10);
         } catch(InterruptedException e) {
         }
-        System.out.println(String.format("PM Executive Meeting: %d", END_AFTER_EXEC - minute));
         meetingTime += END_AFTER_EXEC - minute;
         minute += END_AFTER_EXEC - minute;
 
@@ -256,7 +249,6 @@ public class Manager extends Thread {
             sleep((START_STATUS - minute) * 10);
         } catch(InterruptedException e) {
         }
-        System.out.println(String.format("Status Meeting Setup: %d", START_STATUS - minute));
         meetingTime += START_STATUS - minute;
         minute += START_STATUS - minute;
 
@@ -271,7 +263,6 @@ public class Manager extends Thread {
             sleep((END_STATUS - minute) * 10);
         } catch(InterruptedException e) {
         }
-        System.out.println(String.format("Status Meeting: %d", END_STATUS - minute));
         meetingTime += END_STATUS - minute;
         minute += END_STATUS - minute;
 

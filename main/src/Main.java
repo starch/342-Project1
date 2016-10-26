@@ -5,21 +5,17 @@ import java.util.ArrayList;
  */
 public class Main {
     public static void main(String args[]) {
-        final int NUM_EMPLOYEES = 9;
-        final int NUM_TEAM_LEADS = 3;
-        int teamLeadCount = 0;
-        int employeeCount = 0;
         Clock clock = Clock.createClock();
 
         ConferenceRoom conferenceRoom = new ConferenceRoom();
 
-        // List of all domain threads in the system
+        // List of all threads in the system
         ArrayList<Thread> threadList = new ArrayList<Thread>();
 
-        // List of employees acting as team leads
+        // List of all team leads
         ArrayList<Employee> leads = new ArrayList<Employee>();
 
-        Manager manager = new Manager(clock, conferenceRoom);
+        Manager manager = new Manager(clock);
         threadList.add(manager);
 
         for (int x = 1; x <= 3; x++) {
@@ -34,9 +30,8 @@ public class Main {
             tempLead.provideSubordinatesBarrier();
         }
 
-        // The manager needs to know about the team leads to synchronize
-        // the initial meeting
-        manager.injLeads(leads);
+        // The manager needs to know about the team leads to be able to synchronize with them
+        manager.insertLeads(leads);
 
         // Start all the threads
         for (Thread t : threadList) {
