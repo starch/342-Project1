@@ -145,11 +145,6 @@ public class Employee extends Thread {
 		boolean didStatus = false;
 
 		int arrivalDelay = random.nextInt(31);
-		try {
-			sleep(arrivalDelay*10);
-		} catch (InterruptedException e) {
-			e.printStackTrace(System.out);
-		}
 
 		// TODO: Make sure the offset is correct
 		int arrivalTime = 480 + arrivalDelay;
@@ -157,8 +152,6 @@ public class Employee extends Thread {
 
 		// Set what minute the employee is currently on and log the arrival event
 		minute = arrivalTime;
-		String employeeArrived = String.format("%d: Employee %d%d has arrived at work.", minute, getTeamNumber(), getEmployeeNumber());
-		System.out.println(employeeArrived);
 
 		// Determine when the employee will take for lunch the day
 		int whenToEat = minute + decideLunchTime();
@@ -166,6 +159,12 @@ public class Employee extends Thread {
 		// Based on the amount of time taken for lunch, determine when they should leave
 		// TODO: Make sure the offset is correct
 		int departTime = arrivalTime + 480;
+
+		waitUntil(arrivalTime);
+		minute = clock.getMinute();
+
+		String employeeArrived = String.format("%d: Employee %d%d has arrived at work.", minute, getTeamNumber(), getEmployeeNumber());
+		System.out.println(employeeArrived);
 
 		// If the employee is a lead, go to the Lead Standup
 		if (isLead) {
@@ -185,14 +184,14 @@ public class Employee extends Thread {
 				morningBarrier.await();
 
 				int waitTime = clock.elapsedTime(timeStamp);
-				minute += waitTime;
+				minute = clock.getMinute();
 				// Start the meeting
 				String managerStandup = String.format("%d: Lead %d participates in the lead stand-up.", minute, getTeamNumber());
 				System.out.println(managerStandup);
 
 				// Wait the amount of time the meeting took
-				sleep(10*15);
-				minute += 15;
+				waitUntil(clock.getMinute()+15);
+				minute = clock.getMinute();
 
 				// Wait to leave the PM's office
 				timeStamp = clock.getTimeStamp();
@@ -202,8 +201,8 @@ public class Employee extends Thread {
 				leadBarrier.await();
 				leadBarrier.reset();
 
-				minute += clock.elapsedTime(timeStamp);
-				meetingTime += clock.elapsedTime(timeStamp);
+				minute = clock.getMinute();
+				meetingTime += 15;
 
 			} catch (InterruptedException | BrokenBarrierException e) {
 				e.printStackTrace(System.out);
@@ -222,8 +221,8 @@ public class Employee extends Thread {
 				e.printStackTrace(System.out);
 			}
 
-			minute += clock.elapsedTime(timeStamp);
-			meetingTime += clock.elapsedTime(timeStamp);
+			minute = clock.getMinute();
+			meetingTime += 15;
 		}
 
 		// Once the whole team has arrived, attempt to acquire the conference room
@@ -246,19 +245,16 @@ public class Employee extends Thread {
 		}
 
 		// Adjust employee's minute
-		minute += clock.elapsedTime(timeStamp);
-		meetingTime += clock.elapsedTime(timeStamp);
+		minute = clock.getMinute();
+		meetingTime += 15;
 
 		// Wait the amount of time the meeting took
 		timeStamp = clock.getTimeStamp();
-		try {
-			String teamStandup = String.format("%d: Employee %d%d contributes to the morning stand-up meeting.", minute, getTeamNumber(), getEmployeeNumber());
-			System.out.println(teamStandup);
-			sleep(15*10);
-			minute += 15;
-		} catch (InterruptedException e) {
-			e.printStackTrace(System.out);
-		}
+
+		String teamStandup = String.format("%d: Employee %d%d contributes to the morning stand-up meeting.", minute, getTeamNumber(), getEmployeeNumber());
+		System.out.println(teamStandup);
+		waitUntil(clock.getMinute()+15);
+		minute = clock.getMinute();
 
 
 		// Free the conference room for other teams
@@ -267,7 +263,7 @@ public class Employee extends Thread {
 			conferenceRoom.leave(this);
 		}
 
-		meetingTime += clock.elapsedTime(timeStamp);
+		meetingTime += 15;
 
 		while (true) {
 			// Status meeting
@@ -285,13 +281,13 @@ public class Employee extends Thread {
 					statusBarrier.await();
 
 					// Simulate meeting
-					sleep(15*10);
+					waitUntil(clock.getMinute()+15);
 				} catch(Exception e) {
 					e.printStackTrace(System.out);
 				}
 
-				minute += clock.elapsedTime(timeStamp);
-				meetingTime += clock.elapsedTime(timeStamp);
+				minute = clock.getMinute();
+				meetingTime += 15;
 			} else if (minute >= departTime) {
 				String statusWaiting = String.format("%d: Employee %d%d leaves work.", minute, getTeamNumber(), getEmployeeNumber());
 				System.out.println(statusWaiting);
@@ -316,9 +312,10 @@ public class Employee extends Thread {
 					} else {
 						// TODO: Queue question for manager
 						timeStamp = clock.getTimeStamp();
+						int tempMinute = clock.getMinute();
 						manager.askQuestion(this);
-						minute += clock.elapsedTime(timeStamp);
-						waitingTime += clock.elapsedTime(timeStamp);
+						minute = clock.getMinute();
+						waitingTime += (minute-tempMinute);
 					}
 				}
 
@@ -326,6 +323,7 @@ public class Employee extends Thread {
 				if (!lunchTaken && (minute >= whenToEat)) {
 					lunchTaken = true;
 					timeStamp = clock.getTimeStamp();
+					int tempMinute = clock.getMinute();
 
 					// Decide how long to take lunch for
 					int extraTime = random.nextInt(31);
@@ -337,25 +335,18 @@ public class Employee extends Thread {
 					System.out.println(lunch);
 
 					//Simulate lunch time
-					try {
-						sleep(totalLunchTime * 10);
-						minute += totalLunchTime;
-					} catch (InterruptedException e) {
-						e.printStackTrace(System.out);
-					}
+						waitUntil(clock.getMinute()+totalLunchTime);
+						minute = clock.getMinute();
 
-					lunchTime += clock.elapsedTime(timeStamp);
+					lunchTime += (minute - tempMinute);
 				}
 
-				try {
-					// Sleep 1 minute
-					sleep(10);
-					// Increment the working minute and minute
-					minute++;
-					workingTime++;
-				} catch(InterruptedException e) {
-					e.printStackTrace(System.out);
-				}
+				// Sleep 1 minute
+				int tempMinute = clock.getMinute();
+				waitUntil(clock.getMinute()+1);
+				// Increment the working minute and minute
+				minute = clock.getMinute();
+				workingTime += (minute - tempMinute);
 			}
 		}
 	}
@@ -452,4 +443,15 @@ public class Employee extends Thread {
 	{
 		return employeeStats;
 	}
+
+	public void waitUntil(int finalTime){
+		while(clock.getMinute()!=finalTime){
+			try {
+				sleep(5);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 }

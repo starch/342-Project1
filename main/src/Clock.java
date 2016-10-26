@@ -2,9 +2,9 @@
  * Created by John King on 12-Oct-16.
  */
 
-public class Clock {
+public class Clock extends Thread{
     private static Clock instance = null;
-
+    private int minute = 0;
 
     /**
      * This private method exists, just so that a developer cannot
@@ -44,5 +44,21 @@ public class Clock {
         return (int) ((System.currentTimeMillis() - startTime)/10L);
     }
 
+    public int getMinute(){
+        return minute;
+    }
+
+    @Override
+    public void run() {
+        minute = 480;
+        while(minute<=1020){
+            try {
+                sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            minute+=1;
+        }
+    }
 }
 

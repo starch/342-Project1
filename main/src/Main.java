@@ -33,6 +33,8 @@ public class Main {
         // The manager needs to know about the team leads to be able to synchronize with them
         manager.insertLeads(leads);
 
+        threadList.add(clock);
+
         // Start all the threads
         for (Thread t : threadList) {
             t.start();

@@ -108,9 +108,10 @@ public class Manager extends Thread {
      * This static helper method encapsulates all the error states of
      * waiting on a barrier
      */
-    private static int await(CyclicBarrier b)
+    private int await(CyclicBarrier b)
     {
         long timeStamp = System.currentTimeMillis();
+        int tempMinute = clock.getMinute();
 
         try {
             b.await();
@@ -120,7 +121,7 @@ public class Manager extends Thread {
             e.printStackTrace(System.out);
         }
 
-        return (int) ((System.currentTimeMillis()-timeStamp)/10L);
+        return clock.getMinute();
     }
 
     /**
@@ -138,6 +139,7 @@ public class Manager extends Thread {
         while ((diff = until - minute) > 0) {
             try {
                 timeStamp = clock.getTimeStamp();
+                int tempMinute = clock.getMinute();
 
                 int m = diff*10;
                 Employee e = blockQueue.poll(m, TimeUnit.MILLISECONDS);
@@ -149,7 +151,7 @@ public class Manager extends Thread {
                     System.out.println(answer);
 
                     // Sleep the 10 minutes it takes to answer the question
-                    Thread.sleep(10*10);
+                    waitUntil(clock.getMinute()+10);
 
                     // Manager thread needs lock to notify employee threads
                     synchronized (this) {
@@ -158,8 +160,8 @@ public class Manager extends Thread {
                 }
                 int elapsed = clock.elapsedTime(timeStamp);
 
-                minute += elapsed;
-                workingTime += elapsed;
+                minute = clock.getMinute();
+                workingTime += (minute - tempMinute);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -169,7 +171,7 @@ public class Manager extends Thread {
     @Override
     public void run()
     {
-        minute = START;
+        minute = clock.getMinute();
 
         String arrive = String.format("%d: The Manager arrives at work.", minute);
         System.out.println(arrive);
@@ -178,26 +180,23 @@ public class Manager extends Thread {
         System.out.println(administrivia);
 
         // Wait for leads to gather around door
-        minute += await(morningBarrier);
+        minute = await(morningBarrier);
         morningBarrier.reset();
 
         // The leads enter the manager's office
-        minute += await(morningBarrier);
+        minute = await(morningBarrier);
         morningBarrier.reset();
 
         // Morning lead stand-up
         String morningStandup = String.format("%d: The Manager participates in the morning lead stand-up.", minute);
         System.out.println(morningStandup);
-        try {
-            sleep(15*10);
-        } catch(InterruptedException e) {
-            e.printStackTrace(System.out);
-        }
-        minute += 15;
-        meetingTime += 15;
+        int tempMinute = clock.getMinute();
+        waitUntil(clock.getMinute()+15);
+        minute = clock.getMinute();
+        meetingTime += (minute - tempMinute);
 
         // Synchronize end of stand-up
-        minute += await(morningBarrier);
+        minute = await(morningBarrier);
         morningBarrier.reset();
 
         // Answer questions until the morning executive meeting
@@ -207,28 +206,22 @@ public class Manager extends Thread {
         String execMeeting = String.format("%d: The Manager participates in the morning executive meeting.", minute);
         System.out.println(execMeeting);
 
-        try {
-            sleep((END_MORN_EXEC - minute) * 10);
-        } catch(InterruptedException e) {
-            e.printStackTrace(System.out);
-        }
-        meetingTime += END_MORN_EXEC - minute;
-        minute += END_MORN_EXEC - minute;
+        tempMinute = clock.getMinute();
+        waitUntil(END_MORN_EXEC);
+        meetingTime = (clock.getMinute()-tempMinute);
+        minute = clock.getMinute();
 
         // Answer questions until lunch
         answerQuestions(START_LUNCH);
 
         // Go to lunch (and end lunch on the dot)
         long lunchTimeStamp = clock.getTimeStamp();
+        tempMinute = clock.getMinute();
         String lunch = String.format("%d: The Manager goes to lunch.", minute);
         System.out.println(lunch);
-        try {
-            sleep(60*10);
-        } catch(InterruptedException e) {
-            e.printStackTrace(System.out);
-        }
-        minute += 60;
-        lunchTime += clock.elapsedTime(lunchTimeStamp);
+        waitUntil(clock.getMinute()+60);
+        minute = clock.getMinute();
+        lunchTime += (minute - tempMinute);
 
         // Answer questions until the afternoon executive meeting
         answerQuestions(START_AFTER_EXEC);
@@ -236,13 +229,10 @@ public class Manager extends Thread {
         // Go to the afternoon executive meeting
         String execMeeting2 = String.format("%d: The Manager participates in the afternoon executive meeting.", minute);
         System.out.println(execMeeting2);
-        try {
-            sleep((END_AFTER_EXEC - minute) * 10);
-        } catch(InterruptedException e) {
-            e.printStackTrace(System.out);
-        }
-        meetingTime += END_AFTER_EXEC - minute;
-        minute += END_AFTER_EXEC - minute;
+        tempMinute = clock.getMinute();
+        waitUntil(END_AFTER_EXEC);
+        meetingTime += (clock.getMinute()-tempMinute);
+        minute = clock.getMinute();
 
         // Answer questions until the status meeting
         answerQuestions(SETUP_STATUS);
@@ -251,34 +241,27 @@ public class Manager extends Thread {
         String statusMeeting = String.format("%d: The Manager begins to get ready for the status meeting.", minute);
         System.out.println(statusMeeting);
 
-        try {
-            sleep((START_STATUS - minute) * 10);
-        } catch(InterruptedException e) {
-            e.printStackTrace(System.out);
-        }
-        meetingTime += START_STATUS - minute;
-        minute += START_STATUS - minute;
+        tempMinute = clock.getMinute();
+        waitUntil(START_STATUS);
+        meetingTime += (clock.getMinute()-tempMinute);
+        minute = clock.getMinute();
 
         // Wait for everyone to attend the status meeting
         System.out.println(minute);
-        minute += await(statusBarrier);
+        minute = await(statusBarrier);
         statusBarrier.reset();
 
         // Conduct the status meeting
         String statusStart = String.format("%d: The Manager starts the status meeting.", minute);
         System.out.println(statusStart);
         System.out.println(minute);
-        try {
-            sleep((END_STATUS - minute) * 10);
-        } catch(InterruptedException e) {
-            e.printStackTrace(System.out);
-            e.printStackTrace(System.out);
-        }
-        meetingTime += END_STATUS - minute;
-        minute += END_STATUS - minute;
+        tempMinute = clock.getMinute();
+        waitUntil(END_STATUS);
+        meetingTime += (clock.getMinute() - tempMinute);
+        minute = clock.getMinute();
 
         // Synchronize the end of the status meeting
-        minute += await(statusBarrier);
+        minute = await(statusBarrier);
         statusBarrier.reset();
 
         // Answer questions until the day is over
@@ -301,7 +284,7 @@ public class Manager extends Thread {
     }
 
     /**
-     * Employees will ues this method to queue their questions
+     * Employees will use this method to queue their questions
      *
      * @param employee
      */
@@ -316,6 +299,16 @@ public class Manager extends Thread {
                 wait();
             } catch (InterruptedException e) {
                 e.printStackTrace(System.out);
+            }
+        }
+    }
+
+    public void waitUntil(int finalTime){
+        while(clock.getMinute()!=finalTime){
+            try {
+                sleep(5);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
