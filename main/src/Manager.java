@@ -181,11 +181,11 @@ public class Manager extends Thread {
 
         // Wait for leads to gather around door
         minute = await(morningBarrier);
-        morningBarrier.reset();
+        //morningBarrier.reset();
 
         // The leads enter the manager's office
         minute = await(morningBarrier);
-        morningBarrier.reset();
+       // morningBarrier.reset();
 
         // Morning lead stand-up
         String morningStandup = String.format("%d: The Manager participates in the morning lead stand-up.", minute);
@@ -197,7 +197,7 @@ public class Manager extends Thread {
 
         // Synchronize end of stand-up
         minute = await(morningBarrier);
-        morningBarrier.reset();
+        //morningBarrier.reset();
 
         // Answer questions until the morning executive meeting
         answerQuestions(START_MORN_EXEC);
@@ -247,14 +247,14 @@ public class Manager extends Thread {
         minute = clock.getMinute();
 
         // Wait for everyone to attend the status meeting
-        System.out.println(minute);
+        //System.out.println(minute);
         minute = await(statusBarrier);
-        statusBarrier.reset();
+        //statusBarrier.reset();
 
         // Conduct the status meeting
         String statusStart = String.format("%d: The Manager starts the status meeting.", minute);
         System.out.println(statusStart);
-        System.out.println(minute);
+        //System.out.println(minute);
         tempMinute = clock.getMinute();
         waitUntil(END_STATUS);
         meetingTime += (clock.getMinute() - tempMinute);

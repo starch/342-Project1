@@ -196,10 +196,10 @@ public class Employee extends Thread {
 				// Wait to leave the PM's office
 				timeStamp = clock.getTimeStamp();
 				morningBarrier.await();
-
+                //morningBarrier.reset();
 				// TODO: Implement wait for team members to arrive for morning standup
 				leadBarrier.await();
-				leadBarrier.reset();
+				//leadBarrier.reset();
 
 				minute = clock.getMinute();
 				meetingTime += 15;
