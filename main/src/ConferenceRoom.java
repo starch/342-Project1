@@ -28,7 +28,7 @@ public class ConferenceRoom{
             try {
                 wait();
             } catch (InterruptedException e) {
-                System.out.println("Exception: " + e);
+                System.out.println("Exception: " + e.getStackTrace());
             }
         }
     }

@@ -148,7 +148,7 @@ public class Employee extends Thread {
 		try {
 			sleep(arrivalDelay*10);
 		} catch (InterruptedException e) {
-			System.out.println("Exception: " + e);
+			System.out.println("Exception: " + e.getStackTrace());
 		}
 
 		// TODO: Make sure the offset is correct
@@ -206,7 +206,7 @@ public class Employee extends Thread {
 				meetingTime += clock.elapsedTime(timeStamp);
 
 			} catch (InterruptedException | BrokenBarrierException e) {
-				System.out.println("Exception: " + e);
+				System.out.println("Exception: " + e.getStackTrace());
 			}
 
 		} else {
@@ -219,7 +219,7 @@ public class Employee extends Thread {
 				leadBarrier.await();
 
 			} catch (InterruptedException | BrokenBarrierException e) {
-				System.out.println("Exception: " + e);
+				System.out.println("Exception: " + e.getStackTrace());
 			}
 
 			minute += clock.elapsedTime(timeStamp);
@@ -242,7 +242,7 @@ public class Employee extends Thread {
 		try {
 			leadBarrier.await();
 		} catch (InterruptedException | BrokenBarrierException e) {
-			System.out.println("Exception: " + e);
+			System.out.println("Exception: " + e.getStackTrace());
 		}
 
 		// Adjust employee's minute
@@ -257,7 +257,7 @@ public class Employee extends Thread {
 			sleep(15*10);
 			minute += 15;
 		} catch (InterruptedException e) {
-			System.out.println("Exception: " + e);
+			System.out.println("Exception: " + e.getStackTrace());
 		}
 
 
@@ -287,7 +287,7 @@ public class Employee extends Thread {
 					// Simulate meeting
 					sleep(15*10);
 				} catch(Exception e) {
-					System.out.println("Exception: " + e);
+					System.out.println("Exception: " + e.getStackTrace());
 				}
 
 				minute += clock.elapsedTime(timeStamp);
@@ -341,7 +341,7 @@ public class Employee extends Thread {
 						sleep(totalLunchTime * 10);
 						minute += totalLunchTime;
 					} catch (InterruptedException e) {
-						System.out.println("Exception: " + e);
+						System.out.println("Exception: " + e.getStackTrace());
 					}
 
 					lunchTime += clock.elapsedTime(timeStamp);
@@ -354,7 +354,7 @@ public class Employee extends Thread {
 					minute++;
 					workingTime++;
 				} catch(InterruptedException e) {
-					System.out.println("Exception: " + e);
+					System.out.println("Exception: " + e.getStackTrace());
 				}
 			}
 		}

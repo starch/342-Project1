@@ -115,9 +115,9 @@ public class Manager extends Thread {
         try {
             b.await();
         } catch (InterruptedException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         } catch (BrokenBarrierException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         }
 
         return (int) ((System.currentTimeMillis()-timeStamp)/10L);
@@ -191,7 +191,7 @@ public class Manager extends Thread {
         try {
             sleep(15*10);
         } catch(InterruptedException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         }
         minute += 15;
         meetingTime += 15;
@@ -210,7 +210,7 @@ public class Manager extends Thread {
         try {
             sleep((END_MORN_EXEC - minute) * 10);
         } catch(InterruptedException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         }
         meetingTime += END_MORN_EXEC - minute;
         minute += END_MORN_EXEC - minute;
@@ -225,7 +225,7 @@ public class Manager extends Thread {
         try {
             sleep(60*10);
         } catch(InterruptedException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         }
         minute += 60;
         lunchTime += clock.elapsedTime(lunchTimeStamp);
@@ -239,7 +239,7 @@ public class Manager extends Thread {
         try {
             sleep((END_AFTER_EXEC - minute) * 10);
         } catch(InterruptedException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         }
         meetingTime += END_AFTER_EXEC - minute;
         minute += END_AFTER_EXEC - minute;
@@ -254,7 +254,7 @@ public class Manager extends Thread {
         try {
             sleep((START_STATUS - minute) * 10);
         } catch(InterruptedException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         }
         meetingTime += START_STATUS - minute;
         minute += START_STATUS - minute;
@@ -271,7 +271,7 @@ public class Manager extends Thread {
         try {
             sleep((END_STATUS - minute) * 10);
         } catch(InterruptedException e) {
-            System.out.println("Exception: " + e);
+            System.out.println("Exception: " + e.getStackTrace());
         }
         meetingTime += END_STATUS - minute;
         minute += END_STATUS - minute;
@@ -314,7 +314,7 @@ public class Manager extends Thread {
             try {
                 wait();
             } catch (InterruptedException e) {
-                System.out.println("Exception: " + e);
+                System.out.println("Exception: " + e.getStackTrace());
             }
         }
     }
