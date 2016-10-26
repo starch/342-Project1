@@ -7,25 +7,55 @@ import java.util.concurrent.CyclicBarrier;
 /**
  * The Employee represents a team lead or a basic developer.
  * This is determined by the isLead boolean.
- * The employee arrives at a random time between 8-8:30, attends various
- * meetings, and asks questions throughout the day.
+ * The employee arrives at a random time between 8 and 8:30, attends stand up
+ * meetings, works, and asks questions throughout the day.
  *
  * Created by John King on 12-Oct-16.
  */
 public class Employee extends Thread {
 
 	/**
+	 * Barrier for morning stand-up
+	 */
+	private CyclicBarrier morningBarrier;
+
+	/**
+	 * Barrier for team stand-up
+	 */
+	private CyclicBarrier leadBarrier;
+
+	/**
+	 * Barrier for status meeting
+	 */
+	private CyclicBarrier statusBarrier;
+
+	/**
 	 *  Clock, to reference time of the system
 	 */
     private Clock clock;
 
+	/**
+	 * The object for mutually exclusive access to the conference room
+	 */
+	private ConferenceRoom conferenceRoom;
+
+	/**
+	 * A reference to the manager
+	 */
+	private Manager manager;
+
+	/**
+	 * A reference to the team lead
+	 */
+	private Employee lead;
+
     /**
-	 * If an employee is a team lead, he will have subordinate employees
+	 * List of devs the lead is responsible for
 	 */
 	private ArrayList<Employee> subordinateList = new ArrayList<Employee>();
 
 	/**
-	 * True if the employee is a team lead
+	 * Is this employee a lead?
 	 */
 	private boolean isLead = false;
 
@@ -38,16 +68,6 @@ public class Employee extends Thread {
 	 * The employee's number
 	 */
 	private int employeeNumber;
-
-	/**
-	 * A reference to the team lead
-	 */
-	private Employee lead;
-
-	/**
-	 * A reference to the manager
-	 */
-	private Manager manager;
 
 	/**
 	 * Time spent for lunch
@@ -70,9 +90,14 @@ public class Employee extends Thread {
 	private int waitingTime = 0;
 
 	/**
-	 * The object for mutually exclusive access to the conference room
+	 * The employee's current minute
 	 */
-	private ConferenceRoom conferenceRoom;
+	private int minute;
+
+	/**
+	 * String that represents the stats of this employee
+	 */
+	private String employeeStats;
 
 	/**
 	 * @return the Employee's current minute
@@ -82,10 +107,6 @@ public class Employee extends Thread {
 		return minute;
 	}
 
-	/**
-	 * The employee's current minute
-	 */
-	private int minute;
 
 	/**
 	 * Constructor for a new employee
@@ -117,7 +138,7 @@ public class Employee extends Thread {
 
     @Override
 	public synchronized void run() {
-		int timeStamp;
+		long timeStamp;
 		Random random = new Random();
 
 		boolean lunchTaken = false;
@@ -125,9 +146,9 @@ public class Employee extends Thread {
 
 		int arrivalDelay = random.nextInt(31);
 		try {
-			sleep(arrivalDelay*8);
+			sleep(arrivalDelay*10);
 		} catch (InterruptedException e) {
-			System.out.println("Interrupt at " + e);
+			System.out.println("Exception: " + e);
 		}
 
 		// TODO: Make sure the offset is correct
@@ -136,7 +157,7 @@ public class Employee extends Thread {
 
 		// Set what minute the employee is currently on and log the arrival event
 		minute = arrivalTime;
-		String employeeArrived = String.format("Employee %d%d has arrived at work.", getTeamNumber(), getEmployeeNumber());
+		String employeeArrived = String.format("%d: Employee %d%d has arrived at work.", minute, getTeamNumber(), getEmployeeNumber());
 		System.out.println(employeeArrived);
 
 		// Determine when the employee will take for lunch the day
@@ -144,125 +165,227 @@ public class Employee extends Thread {
 
 		// Based on the amount of time taken for lunch, determine when they should leave
 		// TODO: Make sure the offset is correct
-		long departTime = arrivalTime + 480;
+		int departTime = arrivalTime + 480;
 
 		// If the employee is a lead, go to the Lead Standup
 		if (isLead) {
 			try {
 				// Log what time it is and that the lead for team X is waiting
 				// outside the Manager's office
-				timeStamp = clock.getTimeInMinutes();
-				String leadArrived = String.format("Lead %d has arrived at the PM's office.", getTeamNumber());
+				timeStamp = clock.getTimeStamp();
+				String leadArrived = String.format("%d: Lead %d has arrived at the PM's office.", minute, getTeamNumber());
 				System.out.println(leadArrived);
 
 				// TODO: Wait for all the leads to arrive
 				// Mark the current time and measure elapsed time until the meeting starts
-				if (manager.office.addMorningQueue(this) != 3) {
-					manager.office.waitForTeamLeads();
-				}
+				morningBarrier.await();
+
+				String leadEnter = String.format("%d: Lead %d enters the PM's office.", minute, getTeamNumber());
+				System.out.println(leadEnter);
+				morningBarrier.await();
 
 				int waitTime = clock.elapsedTime(timeStamp);
 				minute += waitTime;
-				manager.office.runMorningMeeting();
-
 				// Start the meeting
+				String managerStandup = String.format("%d: Lead %d participates in the lead stand-up.", minute, getTeamNumber());
+				System.out.println(managerStandup);
+
+				// Wait the amount of time the meeting took
 				sleep(10*15);
 				minute += 15;
 
-				// TODO: Implement wait for team members to arrive for morning standup
+				// Wait to leave the PM's office
+				timeStamp = clock.getTimeStamp();
+				morningBarrier.await();
 
-			} catch (InterruptedException e) {
+				// TODO: Implement wait for team members to arrive for morning standup
+				leadBarrier.await();
+				leadBarrier.reset();
+
+				minute += clock.elapsedTime(timeStamp);
+				meetingTime += clock.elapsedTime(timeStamp);
+
+			} catch (InterruptedException | BrokenBarrierException e) {
 			}
 
 		} else {
-			// You're a developer, wait for the stand-up
-			timeStamp = clock.getTimeInMinutes();
-			// TODO: Implement devs waiting for other devs
-			//try {
-				// Employee waits for other employees
-			//} catch (InterruptedException e) {
-			//}
-			minute += clock.elapsedTime(timeStamp);
+			// You're a developer
+			timeStamp = clock.getTimeStamp();
 
+			// Wait to do the stand-up
+			try {
+				 // Dev waits for the other devs
+				leadBarrier.await();
+
+			} catch (InterruptedException | BrokenBarrierException e) {
+			}
+
+			minute += clock.elapsedTime(timeStamp);
+			meetingTime += clock.elapsedTime(timeStamp);
 		}
 
 		// Once the whole team has arrived, attempt to acquire the conference room
-		timeStamp = clock.getTimeInMinutes();
+		timeStamp = clock.getTimeStamp();
+
 		if (isLead) {
 			// TODO: Aquire conference room
+			String getConf = String.format("%d: Lead %d attempts to acquire the conference room", minute, getTeamNumber());
+			System.out.println(getConf);
 
+			conferenceRoom.request(this);
 		}
 
 		// TODO: Once the conference room is acquired, have the meeting
-		//try {
-
-		//} catch (InterruptedException e1) {
-		//}
-
-		// Adjust emplyee's minute
-		minute += clock.elapsedTime(timeStamp);
-
-		// Add the time that the meeting took
-		// Wait the amount of time the meeting took
+		// Wait for everyone to get into the conference room
 		try {
-			String teamStandup = String.format("Employee %d%d contributes to the morning standup meeting.", getTeamNumber(), getEmployeeNumber());
+			leadBarrier.await();
+		} catch (InterruptedException | BrokenBarrierException e) {
+		}
+
+		// Adjust employee's minute
+		minute += clock.elapsedTime(timeStamp);
+		meetingTime += clock.elapsedTime(timeStamp);
+
+		// Wait the amount of time the meeting took
+		timeStamp = clock.getTimeStamp();
+		try {
+			String teamStandup = String.format("%d: Employee %d%d contributes to the morning stand-up meeting.", minute, getTeamNumber(), getEmployeeNumber());
+			System.out.println(teamStandup);
 			sleep(15*10);
 			minute += 15;
 		} catch (InterruptedException e) {
-			System.out.println("Interrupt at " + e);
+			System.out.println("Exception: " + e);
 		}
 
 
 		// Free the conference room for other teams
 		if (isLead) {
 			// Leave conference room
+			conferenceRoom.leave(this);
 		}
 
-		while (clock.getTimeInMinutes() <= departTime) {
+		meetingTime += clock.elapsedTime(timeStamp);
+
+		while (true) {
 			// Status meeting
 			// If it's 4 and we haven't done the status meeting, do it
-			// TODO: Finish what you're doing and queue for status meeting
+			if (minute >= 960 && !didStatus) {
+				didStatus = true;
+				timeStamp = clock.getTimeStamp();
 
-			// TODO: Complete status meeting
-
-			// Otherwise if we've worked 8 hours or more, leave
-			// TODO: Implement leave logic
-
-			// Otherwise we're working
-			// Sometimes a dev will ask a question
-			if (random.nextInt(1000) == 1) {
-
-				// 50% of the time a lead can answer
-				if ((!isLead)
-						&& (random.nextInt(2) == 0)) {
-
-					// Otherwise go ask the Manager		
-				} else {
-					// TODO: Queue question for manager
-				}
-			}
-
-			// Devs need to eat
-			if (!lunchTaken && (minute >= whenToEat)) {
-				lunchTaken = true;
-
-				// Decide how long to take lunch for
-				int extraLunchTime = random.nextInt(31);
-				int lunchTime = 30 + extraLunchTime;
-
-				departTime += extraLunchTime;
-
-				//Simulate lunch time
 				try {
-					sleep(lunchTime*10);
-				} catch (InterruptedException e) {
-					System.out.println("Interrupt at " + e);
+					String statusWaiting = String.format("%d: Employee %d%d heads to the conference room for the status meaning.", minute, getTeamNumber(), getEmployeeNumber());
+					System.out.println(statusWaiting);
+
+					// Wait for everyone to arrive
+					statusBarrier.await();
+					statusBarrier.await();
+
+					// Simulate meeting
+					sleep(15*10);
+				} catch(Exception e) {
+					System.out.println("Exception: " + e);
+				}
+
+				minute += clock.elapsedTime(timeStamp);
+				meetingTime += clock.elapsedTime(timeStamp);
+			} else if (minute >= departTime) {
+				String statusWaiting = String.format("%d: Employee %d%d leaves work.", minute, getTeamNumber(), getEmployeeNumber());
+				System.out.println(statusWaiting);
+
+				employeeStats = String.format("Employee %d%d\n Time worked: %d minutes\n Time in meetings:" +
+								" %d minutes\n Time for lunch: %d minutes\n Waited on the manager for: %d minutes\n",
+						getTeamNumber(), getEmployeeNumber(), workingTime, meetingTime, lunchTime, waitingTime);
+
+				break;
+			} else {
+				// Otherwise we're working
+				// Sometimes a dev will ask a question
+				if (random.nextInt(750) == 1) {
+					String hasQuestion = String.format("%d: Employee %d%d has a question.", minute, getTeamNumber(), getEmployeeNumber());
+					System.out.println(hasQuestion);
+
+					// Half of the time the team lead can answer the question
+					if ((!isLead) && (random.nextInt(2) == 0)) {
+						String answerQuestion = String.format("%d: Team lead answers Employee %d%d's question.", minute, getTeamNumber(), getEmployeeNumber());
+						System.out.println(answerQuestion);
+						// Otherwise go ask the Manager
+					} else {
+						// TODO: Queue question for manager
+						timeStamp = clock.getTimeStamp();
+						manager.askQuestion(this);
+						minute += clock.elapsedTime(timeStamp);
+						waitingTime += clock.elapsedTime(timeStamp);
+					}
+				}
+
+				// Devs need to eat
+				if (!lunchTaken && (minute >= whenToEat)) {
+					lunchTaken = true;
+					timeStamp = clock.getTimeStamp();
+
+					// Decide how long to take lunch for
+					int extraTime = random.nextInt(31);
+					int totalLunchTime = 30 + extraTime;
+
+					departTime += extraTime;
+
+					String lunch = String.format("%d: Employee %d%d's takes their lunch for %d minutes.", minute, getTeamNumber(), getEmployeeNumber(), totalLunchTime);
+					System.out.println(lunch);
+
+					//Simulate lunch time
+					try {
+						sleep(totalLunchTime * 10);
+						minute += totalLunchTime;
+					} catch (InterruptedException e) {
+						System.out.println("Exception: " + e);
+					}
+
+					lunchTime += clock.elapsedTime(timeStamp);
+				}
+
+				try {
+					// Sleep 1 minute
+					sleep(10);
+					// Increment the working minute and minute
+					minute++;
+					workingTime++;
+				} catch(InterruptedException e) {
 				}
 			}
+		}
+	}
 
-			// Increment the working minute and minute
-			minute++;
-			workingTime++;
+	/**
+	 * Set up barriers
+	 */
+	public void setMorningBarrier(CyclicBarrier _barrier)
+	{
+		morningBarrier = _barrier;
+	}
+
+	public void setLeadBarrier(CyclicBarrier _barrier)
+	{
+		leadBarrier = _barrier;
+	}
+
+	public void setStatusBarrier(CyclicBarrier _barrier)
+	{
+		statusBarrier = _barrier;
+	}
+
+	/**
+	 * Method used in Main to provide employees with their respective barriers
+	 */
+	public void provideSubordinatesBarrier()
+	{
+		this.leadBarrier = new CyclicBarrier(1 + subordinateList.size(), new Runnable() {
+			@Override
+			public void run() {}
+		});
+
+		for (Employee employee : subordinateList) {
+			employee.setLeadBarrier(leadBarrier);
 		}
 	}
 
@@ -313,27 +436,16 @@ public class Employee extends Thread {
 	{
 		Random r = new Random();
 
-		// Number of minutes to wait after arrival to take lunch. Not
-		// within first hour or after working for 6 hours
+		// Number of minutes to wait before taking lunch
+		// should be between 9-2
 		return 60 + r.nextInt(300);
 	}
 
-	public String id()
-	{
-		return "Developer " + Integer.toString(teamNumber) + " "
-			+ Integer.toString(employeeNumber);
-	}
-
 	/**
-	 * String that represents the report of this thread
+	 * @return this employee's stats
 	 */
-	private String reportStr;
-
-	/**
-	 * @return this thread's report
-	 */
-	public String getReportStr()
+	public String getStats()
 	{
-		return reportStr;
+		return employeeStats;
 	}
 }

@@ -66,6 +66,14 @@ public class Clock {
 
     }
 
+    public static long getTimeStamp() {
+        return System.currentTimeMillis();
+    }
+
+    public static int elapsedTime(long startTime) {
+        return (int) ((System.currentTimeMillis() - startTime)/10L);
+    }
+
     /**
      * returns true if the given array is the current time in the system
      * @param input
@@ -80,28 +88,9 @@ public class Clock {
      * @param minute
      * @return
      */
-    public int[] getEndOfMeeting(int minute){
+    public int getEndOfMeeting(int minute){
 
-        if(minute > 60){
-            System.err.println("MINUTE CANNOT BE GREATER THAN 60");
-            System.exit(1);
-        }
-        int nMinute = this.minute + minute;
-        int nHour = hour;
-
-
-        if(nMinute > 60){
-            if(nHour+1 > 12){
-                nHour = (nHour+1)-12;
-            }
-            else{
-                nHour += 1;
-            }
-
-            nMinute -= 60;
-        }
-        System.out.println(nHour + ":" + nMinute);
-        int[] result = {nHour,nMinute};
+        int result = this.getTimeInMinutes() + minute;
 
         return result;
     }

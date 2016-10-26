@@ -1,61 +1,320 @@
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by John King on 12-Oct-16.
  */
-public class Manager implements Runnable{
+public class Manager extends Thread {
 
+    /**
+     *  Clock, to reference time of the system
+     */
     private Clock clock;
-    public Office office;
-    private ConferenceRoom conferenceRoom;
-    private boolean isAnswerQuestion = false;
 
-    public Manager( Clock clock, Office office, ConferenceRoom c){
+    /**
+     * The current minute of the simulation
+     */
+    private int minute;
+
+    /**
+     * A reference to the conference room
+     */
+    private ConferenceRoom conferenceRoom;
+
+    /**
+     * Barrier for morning stand-up
+     */
+    private CyclicBarrier morningBarrier;
+
+    /**
+     * Barrier for status meeting
+     */
+    private CyclicBarrier statusBarrier;
+
+    /**
+     * Time spent for lunch
+     */
+    private int lunchTime = 0;
+
+    /**
+     * Time spent in meetings and waiting for meetings
+     */
+    private int meetingTime = 0;
+
+    /**
+     * Time spent working
+     */
+    private int workingTime = 0;
+
+    /**
+     * String that represents the stats of the manager
+     */
+    private String managerStats;
+
+    /**
+     * Blocking Queue for employees
+     */
+    private BlockingQueue<Employee> blockQueue;
+
+    // Set times for the Manager's tasks during the day
+    private static final int START = 480;
+
+    private static final int START_MORN_EXEC = 600;
+    private static final int END_MORN_EXEC = 660;
+
+    private static final int START_LUNCH = 720;
+    private static final int END_LUNCH = 780;
+
+    private static final int START_AFTER_EXEC = 840;
+    private static final int END_AFTER_EXEC = 900;
+
+    private static final int SETUP_STATUS = 960;
+    private static final int START_STATUS = 975;
+    private static final int END_STATUS = 990;
+
+    private static final int END = 1020;
+
+    public Manager( Clock clock, ConferenceRoom c){
         this.clock = clock;
-        this.office = office;
         conferenceRoom = c;
+        blockQueue = new LinkedBlockingQueue<Employee>();
     }
 
+    /**
+     * Sets the team leads and gives the barriers to those instances.
+     *
+     * @param leads
+     */
+    public void injLeads(List<Employee> leads)
+    {
+        morningBarrier = new CyclicBarrier(1 + leads.size());
+
+        List<Employee> employees = new ArrayList<Employee>();
+
+        for (Employee lead : leads) {
+            lead.setMorningBarrier(morningBarrier);
+
+            employees.add(lead);
+            employees.addAll(lead.getSubordinates());
+        }
+
+        statusBarrier = new CyclicBarrier(1 + employees.size());
+
+        for (Employee employee : employees) {
+            employee.setStatusBarrier(statusBarrier);
+        }
+    }
+
+    /**
+     * This static helper method encapsulates all the error states of
+     * waiting on a barrier
+     */
+    private static int await(CyclicBarrier b)
+    {
+        long timeStamp = System.currentTimeMillis();
+
+        try {
+            b.await();
+        } catch (InterruptedException e) {
+        } catch (BrokenBarrierException e) {
+        }
+
+        return (int) ((System.currentTimeMillis()-timeStamp)/10L);
+    }
+
+    /**
+     * The Manager calls this method when he is available to answer questions
+     *
+     * @param until
+     *        The time to block until
+     */
+    private void answerQuestions(int until)
+    {
+        long timeStamp;
+        int diff;
+
+        // If there's a difference between the current time and the next event, block for the difference
+        while ((diff = until - minute) > 0) {
+            try {
+                timeStamp = clock.getTimeStamp();
+
+                int m = diff*10;
+                Employee e = blockQueue.poll(m, TimeUnit.MILLISECONDS);
+
+                if (e == null) {
+                    // No questions were asked
+                } else {
+                    String answer = String.format("%d: The Manager begins answering Employee %d%d's question.", minute, e.getTeamNumber(), e.getEmployeeNumber());
+                    System.out.println(answer);
+
+                    // Sleep the 10 minutes it takes to answer the question
+                    Thread.sleep(10*10);
+
+                    // Manager thread needs lock to notify employee threads
+                    synchronized (this) {
+                        notifyAll();
+                    }
+                }
+                int elapsed = clock.elapsedTime(timeStamp);
+
+                minute += elapsed;
+                workingTime += elapsed;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     @Override
-    public void run() {
-        office.managerReturns(); // manager is present in the office
+    public void run()
+    {
+        minute = START;
 
-        office.waitForTeamLeads(); // wait for team leads to arrive before morning meeting
+        String arrive = String.format("%d: The Manager arrives at work.", minute);
+        System.out.println(arrive);
 
-        office.runMeeting(clock.getTime(),clock.getEndOfMeeting(15),false); // runs the morning meeting for 15 minutes
+        String administrivia = String.format("%d: The Manager begins doing administrivia.", minute);
+        System.out.println(administrivia);
 
+        // Wait for leads to gather around door
+        minute += await(morningBarrier);
+        morningBarrier.reset();
 
-        /////////////    MORNING MEETING
+        // The leads enter the manager's office
+        minute += await(morningBarrier);
+        morningBarrier.reset();
 
-        int[] startAM = {10,0};
-        int[] endAM = {11,0};
-        office.runMeeting(startAM,endAM,true);
+        // Morning lead stand-up
+        String morningStandup = String.format("%d: The Manager participates in the morning lead stand-up.", minute);
+        System.out.println(morningStandup);
+        try {
+            sleep(15*10);
+        } catch(InterruptedException e) {
+        }
+        minute += 15;
+        meetingTime += 15;
 
-        ////////////////// Beginning of Lunch
+        // Synchronize end of stand-up
+        minute += await(morningBarrier);
+        morningBarrier.reset();
 
-        int[] starLunch = {12,0};
-        int[] endLunch = {1,0};
-        office.runMeeting(starLunch,endLunch,true);
+        // Answer questions until the morning executive meeting
+        answerQuestions(START_MORN_EXEC);
 
+        // Go to the morning executive meeting
+        String execMeeting = String.format("%d: The Manager participates in the morning executive meeting.", minute);
+        System.out.println(execMeeting);
 
+        try {
+            sleep((END_MORN_EXEC - minute) * 10);
+        } catch(InterruptedException e) {
+        }
+        meetingTime += END_MORN_EXEC - minute;
+        minute += END_MORN_EXEC - minute;
 
-        ////////////////   Beginning of Afternoon Meeting
+        // Answer questions until lunch
+        answerQuestions(START_LUNCH);
 
-        int[] startPM = {2,0};
-        int[] endPM = {3,0};
-        office.runMeeting(startPM,endPM,true);
+        // Go to lunch (and end lunch on the dot)
+        long lunchTimeStamp = clock.getTimeStamp();
+        String lunch = String.format("%d: The Manager goes to lunch.", minute);
+        System.out.println(lunch);
+        try {
+            sleep(60*10);
+        } catch(InterruptedException e) {
+        }
+        minute += 60;
+        lunchTime += clock.elapsedTime(lunchTimeStamp);
 
-        /////////////////   project status meeeting
+        // Answer questions until the afternoon executive meeting
+        answerQuestions(START_AFTER_EXEC);
 
-        int[] startProjectStatus = {4,15};
-        int[] endProjectStatus = {4,30};
-        office.runMeeting(startProjectStatus,endProjectStatus,false);
+        // Go to the afternoon executive meeting
+        String execMeeting2 = String.format("%d: The Manager participates in the afternoon executive meeting.", minute);
+        System.out.println(execMeeting2);
+        try {
+            sleep((END_AFTER_EXEC - minute) * 10);
+        } catch(InterruptedException e) {
+        }
+        System.out.println(String.format("PM Executive Meeting: %d", END_AFTER_EXEC - minute));
+        meetingTime += END_AFTER_EXEC - minute;
+        minute += END_AFTER_EXEC - minute;
 
-        ////////////////// leaving the office
+        // Answer questions until the status meeting
+        answerQuestions(SETUP_STATUS);
 
-        office.leaveOffice();
+        // Begin the status meeting
+        String statusMeeting = String.format("%d: The Manager begins to get ready for the status meeting.", minute);
+        System.out.println(statusMeeting);
+
+        try {
+            sleep((START_STATUS - minute) * 10);
+        } catch(InterruptedException e) {
+        }
+        System.out.println(String.format("Status Meeting Setup: %d", START_STATUS - minute));
+        meetingTime += START_STATUS - minute;
+        minute += START_STATUS - minute;
+
+        // Wait for everyone to attend the status meeting
+        minute += await(statusBarrier);
+        statusBarrier.reset();
+
+        // Conduct the status meeting
+        String statusStart = String.format("%d: The Manager starts the status meeting.", minute);
+        System.out.println(statusStart);
+        try {
+            sleep((END_STATUS - minute) * 10);
+        } catch(InterruptedException e) {
+        }
+        System.out.println(String.format("Status Meeting: %d", END_STATUS - minute));
+        meetingTime += END_STATUS - minute;
+        minute += END_STATUS - minute;
+
+        // Synchronize the end of the status meeting
+        minute += await(statusBarrier);
+        statusBarrier.reset();
+
+        // Answer questions until the day is over
+        answerQuestions(END);
+
+        // Leave work
+        String depart = String.format("%d: The Manager leaves work.", minute);
+        System.out.println(depart);
+        managerStats =  String.format("Manager: \nTime worked: %d minutes\n Time in meetings: %d minutes\n Time for lunch:" +
+                " %d minutes\n", workingTime, meetingTime, lunchTime);
 
     }
 
+    /**
+     * @return the Manager's stats
+     */
+    public String getStats()
+    {
+        return managerStats;
+    }
+
+    /**
+     * Employees will ues this method to queue their questions
+     *
+     * @param employee
+     */
+    public synchronized void askQuestion(Employee employee)
+    {
+        String question = String.format("%d: Employee %d%d gets in line to have their question answered.", minute, employee.getTeamNumber(), employee.getEmployeeNumber());
+        System.out.println(question);
+        blockQueue.add(employee);
+
+        while (blockQueue.contains(employee)) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+    }
 }
+
