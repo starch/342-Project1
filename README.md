@@ -26,5 +26,5 @@ Worker's Title
     Time in meetings: ####
     Time for lunch: ####
     
-    
+# Configurable Constants
     
